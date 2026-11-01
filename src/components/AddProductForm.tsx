@@ -162,9 +162,20 @@ export function AddProductForm() {
           </label>
           {photoPreview}
           {!preview && (
-            <p className="text-sm text-mute">
-              Snap the product, or the shelf label with its price. No link needed.
-            </p>
+            <>
+              <p className="text-sm text-mute">
+                Snap the product, or the shelf label with its price. No link needed.
+              </p>
+              <p className="rounded-[4px] border border-line p-3 text-sm text-mute">
+                <strong className="text-ink">Tip:</strong> want the online shop link instead? Open{" "}
+                <strong className="text-ink">Google Lens</strong> (in the Google app or your phone’s camera), point
+                it at the product, open the shop’s page it finds, copy the link, then choose{" "}
+                <button type="button" onClick={() => choose("link")} className="text-acc underline">
+                  Paste a link
+                </button>
+                .
+              </p>
+            </>
           )}
         </>
       )}
