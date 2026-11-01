@@ -49,6 +49,7 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
   const [hasLink, setHasLink] = useState(false);
   const [linkNote, setLinkNote] = useState<{ problem: boolean; text: string } | null>(null);
   const [matches, setMatches] = useState<ProductMatch[] | null>(null);
+  const [sameLink, setSameLink] = useState<ProductMatch | null>(null);
   // Which product this price is for: a match's id, "new", or "" (not chosen yet).
   const [choice, setChoice] = useState(forProduct?.id ?? "");
   const [preview, setPreview] = useState<string | null>(null);
@@ -86,9 +87,10 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
     lastLookup.current = shopLink;
     startCheck(async () => {
       const found = await findMatches(shopLink);
-      setMatches(found);
-      setChoice(found.length ? "" : "new");
-      if (!found.length) setTimeout(() => priceRef.current?.focus(), 0);
+      setSameLink(found.sameLink);
+      setMatches(found.matches);
+      setChoice(found.sameLink ? "" : found.matches.length ? "" : "new");
+      if (!found.sameLink && !found.matches.length) setTimeout(() => priceRef.current?.focus(), 0);
     });
   }
 
@@ -171,9 +173,24 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
         <div aria-live="polite">
           {checking ? (
             <p className="text-sm text-mute">Checking whether this product is already on Cometcart…</p>
+          ) : sameLink ? (
+            <div className="grid gap-2">
+              <p className="text-base">This exact link is already on Cometcart:</p>
+              <Link href={`/product/${sameLink.id}`} className={cardClass(false)}>
+                <Thumb src={sameLink.image} alt="" />
+                <span className="min-w-0">
+                  <span className="block font-semibold">{sameLink.name}</span>
+                  <span className="block text-sm text-mute">{sameLink.summary} · see it</span>
+                </span>
+              </Link>
+              <p className="text-sm text-mute">To compare, paste the same product’s link from a different shop.</p>
+            </div>
           ) : matches?.length ? (
             <fieldset className="grid gap-2">
-              <legend className="mb-2 text-base">Is it one of these? Your price will be compared with theirs.</legend>
+              <legend className="mb-1 text-base">Is it one of these products already on Cometcart?</legend>
+              <p className="mb-1 text-sm text-mute">
+                If so, tap it and this shop’s price is added next to the other shops’ prices, so people can compare.
+              </p>
               {matches.map((m) => (
                 <button key={m.id} type="button" aria-pressed={choice === m.id} onClick={() => pick(m.id)} className={cardClass(choice === m.id)}>
                   <Thumb src={m.image} alt="" />

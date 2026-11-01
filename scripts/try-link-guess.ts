@@ -11,6 +11,7 @@ const links = [
   "https://www.mrphome.com/en_za/stoneware-dinner-set-12-piece-1234567.html",
   "https://www.incredible.co.za/apple-macbook-air-13-inch-laptop",
   "https://shop.example.co.za/p/12345",
+  "https://bash.com/women-s-steve-madden-red-briggy-tote-handbag-385000abiv6/p",
   // Google Shopping ad link with the shop link inside
   "https://www.google.com/aclk?sa=l&ai=DChcSE&ae=2&adurl=https%3A%2F%2Fwww.stevemadden.co.za%2Fproducts%2Fbtote-black-tote-bag%3Fvariant%3D123&ved=2ah",
   // Google redirect

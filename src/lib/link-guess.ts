@@ -33,9 +33,11 @@ export function guessName(url: URL): string {
     .map((s) =>
       s
         .split(/[-_+\s]+/)
-        // drop shop codes like PLID73456789 or 6009219123456, keep model numbers like 1000xm5
-        .filter((w) => w && !/^\d{5,}$/.test(w) && !/^[a-z]{1,4}\d{5,}$/i.test(w) && !/\d{5,}_/.test(w))
-        .join(" "),
+        // drop shop stock codes (PLID73456789, 385000abiv6, 6009219123456), keep model numbers like 1000xm5
+        .filter((w) => w && !/\d{5,}/.test(w))
+        .join(" ")
+        // "women s" (from women-s in the address) → "women's"
+        .replace(/\b([a-z]+) s\b/gi, "$1's"),
     )
     .filter((s) => /[a-z]{3,}/i.test(s));
 

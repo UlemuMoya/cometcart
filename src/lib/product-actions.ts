@@ -8,6 +8,7 @@ import { guessFromLink, resolveShopLink } from "@/lib/link-guess";
 import { searchProducts } from "@/lib/search";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import type { Product } from "@/lib/types";
 
 export type AddProductState = {
   error?: string;
@@ -33,25 +34,38 @@ function text(form: FormData, key: string) {
  * Products already in Cometcart that a pasted link might be, so its price joins
  * that product's comparison instead of becoming a separate product.
  */
-export async function findMatches(rawLink: string): Promise<ProductMatch[]> {
+export async function findMatches(rawLink: string): Promise<{ sameLink: ProductMatch | null; matches: ProductMatch[] }> {
+  const link = resolveShopLink(rawLink);
   const guess = guessFromLink(rawLink);
-  if (!guess?.name) return [];
+  if (!link?.ok || !guess) return { sameLink: null, matches: [] };
   const catalogue = await getCatalogue();
+
+  // This exact link is already here: nothing to add, just point to it.
+  const same = catalogue.find((p) => p.offers.some((o) => o.url === link.url));
+  if (same) return { sameLink: toMatch(same), matches: [] };
+  if (!guess.name) return { sameLink: null, matches: [] };
+
   const { results } = searchProducts(catalogue, guess.name, null);
   // Needs at least half the name's words to match, so "black bag" doesn't offer every bag.
   const words = guess.name.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
-  return results
+  const matches = results
     .filter((p) => {
       const hay = p.name.toLowerCase();
       return words.filter((w) => hay.includes(w.replace(/s$/, ""))).length >= Math.max(1, Math.ceil(words.length / 2));
     })
     .slice(0, 4)
-    .map((p) => ({
-      id: p.id,
-      name: p.name,
-      image: p.image ?? null,
-      summary: `from ${formatRand(lowestOffer(p.offers).priceZar)} · ${p.offers.length} shop${p.offers.length > 1 ? "s" : ""}`,
-    }));
+    .map(toMatch);
+  return { sameLink: null, matches };
+}
+
+function toMatch(p: Product): ProductMatch {
+  const shops = p.offers.length;
+  return {
+    id: p.id,
+    name: p.name,
+    image: p.image ?? null,
+    summary: `from ${formatRand(lowestOffer(p.offers).priceZar)} · ${shops} shop${shops > 1 ? "s" : ""}`,
+  };
 }
 
 /** Adds a shop's price: to an existing product (`productId`), or as a new product. */
