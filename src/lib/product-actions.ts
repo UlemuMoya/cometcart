@@ -33,7 +33,9 @@ export async function addProduct(_prev: AddProductState, form: FormData): Promis
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/sign-in");
 
-  const url = validLink(text(form, "url"));
+  // Two independent ways to add: from a product link, or from a photo (no link needed).
+  const mode = text(form, "mode") === "photo" ? "photo" : "link";
+  const url = mode === "link" ? validLink(text(form, "url")) : null;
   const name = text(form, "name");
   const shop = text(form, "shop");
   const price = Number(text(form, "price").replace(/[^\d.]/g, ""));
@@ -41,7 +43,8 @@ export async function addProduct(_prev: AddProductState, form: FormData): Promis
   const photo = form.get("photo");
   const hasPhoto = photo instanceof File && photo.size > 0;
 
-  if (!url) return { error: "Please paste the full product link, starting with https://" };
+  if (mode === "link" && !url) return { error: "Please paste the full product link, starting with https://" };
+  if (mode === "photo" && !hasPhoto) return { error: "Please add a photo of the product." };
   if (!name || name.length > 120) return { error: "Please give the product a name (up to 120 characters)." };
   if (!shop || shop.length > 60) return { error: "Please enter the shop’s name." };
   if (!Number.isFinite(price) || price <= 0 || price > 10_000_000)
@@ -56,12 +59,14 @@ export async function addProduct(_prev: AddProductState, form: FormData): Promis
   }
 
   // Same link already added? Send them to that product instead of making a copy.
-  const { data: existing } = await supabase.from("offers").select("product_id").eq("url", url).limit(1);
-  if (existing?.length)
-    return {
-      error: "Someone has already added this link.",
-      existingHref: `/product/${existing[0].product_id}`,
-    };
+  if (url) {
+    const { data: existing } = await supabase.from("offers").select("product_id").eq("url", url).limit(1);
+    if (existing?.length)
+      return {
+        error: "Someone has already added this link.",
+        existingHref: `/product/${existing[0].product_id}`,
+      };
+  }
 
   let image: string | null = null;
   if (hasPhoto) {

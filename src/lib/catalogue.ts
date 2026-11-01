@@ -8,7 +8,7 @@ type OfferRow = {
   id: string;
   shop_name: string;
   price_zar: number | string;
-  url: string;
+  url: string | null; // null when added from a photo, without a link
   price_checked_at: string;
 };
 
@@ -42,7 +42,7 @@ function toProduct(row: ProductRow): Product {
         shop: o.shop_name,
         priceZar: Number(o.price_zar),
         checkedOn: formatCheckedDate(o.price_checked_at),
-        url: o.url,
+        url: o.url ?? undefined,
       }))
       .sort((a, b) => a.priceZar - b.priceZar),
   };

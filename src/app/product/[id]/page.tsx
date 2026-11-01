@@ -80,14 +80,19 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
                   {i === 0 && several && <span className="block text-xs">lowest</span>}
                 </td>
                 <td className="border-b border-line py-3 pl-2 text-right">
-                  <a
-                    href={`/go/${o.id}`}
-                    target="_blank"
-                    rel="noopener nofollow"
-                    className="inline-block rounded-[3px] border border-line px-3 py-2 text-sm hover:border-mute"
-                  >
-                    Visit shop<span className="sr-only"> {o.shop} (opens in a new tab)</span>
-                  </a>
+                  {o.url ? (
+                    <a
+                      href={`/go/${o.id}`}
+                      target="_blank"
+                      rel="noopener nofollow"
+                      className="inline-block rounded-[3px] border border-line px-3 py-2 text-sm hover:border-mute"
+                    >
+                      Visit shop<span className="sr-only"> {o.shop} (opens in a new tab)</span>
+                    </a>
+                  ) : (
+                    // Added from a photo taken in a shop: no website link.
+                    <span className="text-sm text-mute">In store</span>
+                  )}
                 </td>
               </tr>
             ))}
