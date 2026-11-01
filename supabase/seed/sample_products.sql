@@ -10,7 +10,6 @@ delete from public.products where description like 'Sample product%';
 with new_products as (
   insert into public.products (name, category, image, description) values
     ('Black leather handbag',           'Bags',       '/images/handbag.jpg',    'Sample product for testing. Delete before launch.'),
-    ('Canvas crossbody bag',            'Bags',       null,                     'Sample product for testing. Delete before launch.'),
     ('White leather sneakers',          'Shoes',      '/images/sneakers.jpg',   'Sample product for testing. Delete before launch.'),
     ('Linen bedding set (queen)',       'Bedding',    '/images/bedding.jpg',    'Sample product for testing. Delete before launch.'),
     ('White dome table lamp',           'Lighting',   '/images/lamp.jpg',       'Sample product for testing. Delete before launch.'),
@@ -22,7 +21,15 @@ with new_products as (
     ('Air fryer (4-litre)',             'Appliances', '/images/air-fryer.jpg',  'Sample product for testing. Delete before launch.'),
     ('Eau de parfum (50 ml)',           'Fragrance',  '/images/perfume.jpg',    'Sample product for testing. Delete before launch.'),
     ('Face serum (30 ml)',              'Skincare',   '/images/serum.jpg',      'Sample product for testing. Delete before launch.'),
-    ('Smartwatch',                      'Watches',    '/images/smartwatch.jpg', 'Sample product for testing. Delete before launch.')
+    ('Smartwatch',                      'Watches',    '/images/smartwatch.jpg', 'Sample product for testing. Delete before launch.'),
+    ('65-inch smart TV',                'TVs',        '/images/tv-room.jpg',    'Sample product for testing. Delete before launch.'),
+    ('Slim 14-inch laptop',             'Laptops',    '/images/laptop.jpg',     'Sample product for testing. Delete before launch.'),
+    ('Makeup essentials set',           'Makeup',     '/images/makeup.jpg',     'Sample product for testing. Delete before launch.'),
+    ('Skincare trio',                   'Skincare',   '/images/skincare.jpg',   'Sample product for testing. Delete before launch.'),
+    ('Coffee machine for small spaces', 'Appliances', '/images/coffee-machine.jpg', 'Sample product for testing. Delete before launch.'),
+    ('Countertop blender',              'Appliances', '/images/blender.jpg',    'Sample product for testing. Delete before launch.'),
+    ('Robot vacuum cleaner',            'Appliances', '/images/robot-vacuum.jpg', 'Sample product for testing. Delete before launch.'),
+    ('Bluetooth headphones',            'Headphones', '/images/headphones-phone.jpg', 'Sample product for testing. Delete before launch.')
   returning id, name
 )
 insert into public.offers (product_id, shop_name, price_zar, url)
@@ -30,7 +37,6 @@ select p.id, o.shop || ' (sample)', o.price, 'https://example.com/sample-product
 from new_products p
 join (values
   ('Black leather handbag', 'Nova Mart', 1399), ('Black leather handbag', 'Lumi Store', 1299), ('Black leather handbag', 'Orbit Fashion', 1549),
-  ('Canvas crossbody bag', 'Nova Mart', 349), ('Canvas crossbody bag', 'Lumi Store', 399),
   ('White leather sneakers', 'Orbit Fashion', 849), ('White leather sneakers', 'Nova Mart', 799), ('White leather sneakers', 'Stride House', 899),
   ('Linen bedding set (queen)', 'Haven Home', 1799), ('Linen bedding set (queen)', 'Nova Mart', 1899), ('Linen bedding set (queen)', 'Casa Mode', 1699),
   ('White dome table lamp', 'Casa Mode', 649), ('White dome table lamp', 'Haven Home', 699),
@@ -42,5 +48,13 @@ join (values
   ('Air fryer (4-litre)', 'Haven Home', 1099), ('Air fryer (4-litre)', 'Nova Mart', 1199),
   ('Eau de parfum (50 ml)', 'Glow Counter', 1299), ('Eau de parfum (50 ml)', 'Lumi Store', 1399),
   ('Face serum (30 ml)', 'Glow Counter', 449), ('Face serum (30 ml)', 'Lumi Store', 479),
-  ('Smartwatch', 'Circuit Hub', 2499), ('Smartwatch', 'Nova Mart', 2699)
+  ('Smartwatch', 'Circuit Hub', 2499), ('Smartwatch', 'Nova Mart', 2699),
+  ('65-inch smart TV', 'Circuit Hub', 9999), ('65-inch smart TV', 'Nova Mart', 10499),
+  ('Slim 14-inch laptop', 'Circuit Hub', 10999), ('Slim 14-inch laptop', 'Nova Mart', 11499),
+  ('Makeup essentials set', 'Glow Counter', 899), ('Makeup essentials set', 'Lumi Store', 949),
+  ('Skincare trio', 'Glow Counter', 749), ('Skincare trio', 'Lumi Store', 799),
+  ('Coffee machine for small spaces', 'Haven Home', 1799), ('Coffee machine for small spaces', 'Nova Mart', 1899),
+  ('Countertop blender', 'Haven Home', 899), ('Countertop blender', 'Nova Mart', 949),
+  ('Robot vacuum cleaner', 'Circuit Hub', 2999), ('Robot vacuum cleaner', 'Haven Home', 3199),
+  ('Bluetooth headphones', 'Nova Mart', 899), ('Bluetooth headphones', 'Circuit Hub', 949)
 ) as o(name, shop, price) on o.name = p.name;
