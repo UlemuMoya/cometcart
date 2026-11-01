@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Allura, Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Suspense } from "react";
+import { AccountLink, AccountLinkFallback } from "@/components/AccountLink";
 import { AssistantButton } from "@/components/AssistantButton";
 import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
@@ -39,7 +41,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en-ZA" className={`${dmSans.variable} ${cormorant.variable} ${allura.variable}`}>
       <body>
         <main className="mx-auto max-w-[980px] px-4 pb-24 pt-5">
-          <SiteHeader />
+          <SiteHeader
+            account={
+              <Suspense fallback={<AccountLinkFallback />}>
+                <AccountLink />
+              </Suspense>
+            }
+          />
           {children}
           <p className="mt-7 text-[13px] text-mute">
             Early preview with made-up sample products, shops and prices. Links don’t go to

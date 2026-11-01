@@ -10,7 +10,7 @@ const TABS = [
   { href: "/add", label: "Add a product" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ account }: { account: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -42,6 +42,7 @@ export function SiteHeader() {
               </li>
             );
           })}
+          <li>{account}</li>
         </ul>
       </nav>
     </header>
