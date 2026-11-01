@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Product } from "@/data/placeholder";
 import { formatRand, lowestOffer } from "@/lib/format";
+import type { Product } from "@/lib/types";
 
 type Props = {
   product: Product;
@@ -19,14 +19,20 @@ export function ProductCard({ product, badge }: Props) {
           {badge}
         </span>
       )}
-      <div className="relative aspect-[4/3] bg-line">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          sizes="230px"
-          className="object-cover"
-        />
+      <div className="relative aspect-[4/3] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]">
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 560px) 100vw, 240px"
+            className="object-cover"
+          />
+        ) : (
+          <span className="absolute inset-0 grid place-items-center px-4 text-center font-display text-2xl text-white/85">
+            {product.category}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-1 px-3.5 pb-3.5 pt-3">
         <h3 className="min-h-[2.6em] font-semibold">{product.name}</h3>
@@ -42,7 +48,7 @@ export function ProductCard({ product, badge }: Props) {
         </span>
         <div className="mt-auto flex flex-wrap gap-2 pt-2">
           <Link
-            href="/discover"
+            href={product.href ?? "/discover"}
             className="flex-1 rounded-[3px] border border-line p-2 text-center hover:border-mute"
           >
             Compare

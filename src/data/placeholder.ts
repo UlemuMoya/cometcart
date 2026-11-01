@@ -2,40 +2,7 @@
 // Products, shops and prices here are made up. They are replaced by real
 // catalogue data in step 5. Photos are owner-supplied; see public/images/LICENCES.md.
 
-export type Offer = {
-  shop: string;
-  priceZar: number;
-  checkedOn: string; // date the price was checked, shown next to every price
-};
-
-export type Product = {
-  id: string;
-  name: string;
-  category: Category;
-  image: string;
-  offers: Offer[];
-};
-
-export const CATEGORIES = [
-  "Tops",
-  "Pants",
-  "Shoes",
-  "Bags",
-  "Furniture",
-  "Bedding",
-  "Lighting",
-  "Kitchen",
-  "Makeup",
-  "Skincare",
-  "Fragrance",
-  "Headphones",
-  "Laptops",
-  "TVs",
-  "Watches",
-  "Appliances",
-] as const;
-
-export type Category = (typeof CATEGORIES)[number];
+import type { Category, Product } from "@/lib/types";
 
 export const INSPIRATION: { category: Category; image: string; alt: string }[] = [
   { category: "Tops", image: "/images/top.jpg", alt: "Cream short-sleeved top" },

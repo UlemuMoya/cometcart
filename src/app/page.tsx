@@ -24,7 +24,7 @@ export default function Home() {
         {INSPIRATION.map((tile) => (
           <li key={tile.category}>
             <Link
-              href={`/discover?q=${encodeURIComponent(tile.category.toLowerCase())}`}
+              href={`/discover?cat=${encodeURIComponent(tile.category)}`}
               className="relative flex h-full items-end overflow-hidden rounded-[4px] p-3 text-white"
             >
               <Image
