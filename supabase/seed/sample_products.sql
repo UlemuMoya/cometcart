@@ -3,6 +3,9 @@
 -- Run in Supabase: SQL Editor > New query > paste > Run.
 -- Remove them all before launch with:
 --   delete from public.products where description like 'Sample product%';
+-- Safe to run more than once: it clears old test products first, so they never double up.
+
+delete from public.products where description like 'Sample product%';
 
 with new_products as (
   insert into public.products (name, category, image, description) values

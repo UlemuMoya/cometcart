@@ -11,7 +11,7 @@ export function lowestOffer(offers: Offer[]): Offer {
 
 /** "1 Nov 2026", the way price-checked dates are shown. */
 export function formatCheckedDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-ZA", {
+  return new Date(iso).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",

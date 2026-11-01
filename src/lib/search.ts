@@ -41,16 +41,31 @@ function score(p: Product, words: string[]): number {
 
 const price = (p: Product) => lowestOffer(p.offers).priceZar;
 
+export type PriceRange = { min: number | null; max: number | null };
+
 export type SearchResult = {
   query: ParsedQuery;
+  /** The price limits actually applied: the side filter combined with any typed budget. */
+  range: PriceRange;
   results: Product[];
   /** True when nothing fit the budget and `results` are the closest matches over it. */
   overBudget: boolean;
 };
 
-export function searchProducts(all: Product[], raw: string, category: string | null): SearchResult {
+export function searchProducts(
+  all: Product[],
+  raw: string,
+  category: string | null,
+  filter: PriceRange = { min: null, max: null },
+): SearchResult {
   const query = parseQuery(raw);
-  const inCategory = category ? all.filter((p) => p.category === category) : all;
+  // A typed "under R1000" and the side filter both apply; the lower maximum wins.
+  const maxes = [query.maxPrice, filter.max].filter((n): n is number => n != null);
+  const range: PriceRange = { min: filter.min, max: maxes.length ? Math.min(...maxes) : null };
+
+  const inCategory = (category ? all.filter((p) => p.category === category) : all).filter(
+    (p) => range.min == null || price(p) >= range.min,
+  );
 
   const rank = (list: Product[]) =>
     query.words.length
@@ -61,11 +76,12 @@ export function searchProducts(all: Product[], raw: string, category: string | n
           .map(([p]) => p)
       : [...list].sort((a, b) => price(a) - price(b));
 
-  const withinBudget = query.maxPrice ? inCategory.filter((p) => price(p) <= query.maxPrice!) : inCategory;
+  const max = range.max;
+  const withinBudget = max != null ? inCategory.filter((p) => price(p) <= max) : inCategory;
   const results = rank(withinBudget);
-  if (results.length || !query.maxPrice) return { query, results, overBudget: false };
+  if (results.length || max == null) return { query, range, results, overBudget: false };
 
   // Nothing under budget: show the closest matches above it, cheapest first, and say so.
   const closest = rank(inCategory).sort((a, b) => price(a) - price(b)).slice(0, 6);
-  return { query, results: closest, overBudget: closest.length > 0 };
+  return { query, range, results: closest, overBudget: closest.length > 0 };
 }
