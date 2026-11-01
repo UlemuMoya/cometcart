@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
-import { guessCategory, guessFromLink } from "@/lib/link-guess";
+import { guessCategory, guessFromLink, resolveShopLink } from "@/lib/link-guess";
 import { addProduct, type AddProductState } from "@/lib/product-actions";
 
 const inputClass =
@@ -33,6 +33,10 @@ export function AddProductForm() {
   const [state, action, pending] = useActionState<AddProductState, FormData>(addProduct, {});
   const [mode, setMode] = useState<Mode>("link");
   const [hasLink, setHasLink] = useState(false);
+  // Kept in state so they survive an error (React clears plain fields after each submit).
+  const [url, setUrl] = useState("");
+  const [price, setPrice] = useState("");
+  const [linkNote, setLinkNote] = useState<{ problem: boolean; text: string } | null>(null);
   const [shop, setShop] = useState("");
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
@@ -51,6 +55,15 @@ export function AddProductForm() {
   }
 
   function onLink(value: string) {
+    const link = resolveShopLink(value);
+    if (link?.ok && link.unwrapped) {
+      // A Google or social link with the shop's link inside: use the shop's.
+      setUrl(link.url);
+      setLinkNote({ problem: false, text: "We’ve swapped in the shop’s own link from the one you pasted." });
+    } else {
+      setUrl(value);
+      setLinkNote(link && !link.ok ? { problem: true, text: link.problem } : null);
+    }
     const guess = guessFromLink(value);
     const firstTime = !hasLink && guess != null;
     setHasLink(guess != null);
@@ -144,11 +157,18 @@ export function AddProductForm() {
               required
               autoFocus
               placeholder="https://"
+              value={url}
               onChange={(e) => onLink(e.target.value)}
+              aria-describedby="link-note"
               className={`${inputClass} py-[13px] text-base`}
             />
           </label>
-          {!hasLink && (
+          {linkNote && (
+            <p id="link-note" role={linkNote.problem ? "alert" : "status"} className={`text-sm ${linkNote.problem ? "text-[#fda4af]" : "text-warm"}`}>
+              {linkNote.text}
+            </p>
+          )}
+          {!hasLink && !linkNote && (
             <p className="text-sm text-mute">
               Copy the link from the shop’s product page and paste it here. We’ll fill in what we can from it.
             </p>
@@ -192,6 +212,8 @@ export function AddProductForm() {
             inputMode="decimal"
             required
             placeholder="e.g. 1299"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
             className={`${inputClass} py-[13px] text-base`}
           />
         </label>

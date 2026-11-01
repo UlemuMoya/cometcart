@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { CATEGORIES } from "@/lib/categories";
+import { resolveShopLink } from "@/lib/link-guess";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,14 +19,6 @@ function text(form: FormData, key: string) {
   return String(form.get(key) ?? "").trim();
 }
 
-function validLink(raw: string): string | null {
-  try {
-    const url = new URL(raw);
-    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
-  } catch {
-    return null;
-  }
-}
 
 export async function addProduct(_prev: AddProductState, form: FormData): Promise<AddProductState> {
   if (!supabaseConfigured) return { error: "Adding products isn’t connected yet." };
@@ -35,7 +28,9 @@ export async function addProduct(_prev: AddProductState, form: FormData): Promis
 
   // Two independent ways to add: from a product link, or from a photo (no link needed).
   const mode = text(form, "mode") === "photo" ? "photo" : "link";
-  const url = mode === "link" ? validLink(text(form, "url")) : null;
+  const link = mode === "link" ? resolveShopLink(text(form, "url")) : null;
+  if (link && !link.ok) return { error: link.problem };
+  const url = link?.ok ? link.url : null;
   const name = text(form, "name");
   const shop = text(form, "shop");
   const price = Number(text(form, "price").replace(/[^\d.]/g, ""));

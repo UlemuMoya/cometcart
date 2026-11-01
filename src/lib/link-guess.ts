@@ -60,14 +60,62 @@ export function guessCategory(name: string): Category | "" {
   return best;
 }
 
-export function guessFromLink(raw: string): LinkGuess | null {
-  let url: URL;
+// Sites whose links are a detour to a shop (search results, ads, social posts), not the shop itself.
+const NOT_A_SHOP = /(^|\.)(google\.[a-z.]+|googleadservices\.com|share\.google|goo\.gl|g\.co|bing\.com|facebook\.com|fb\.me|instagram\.com|tiktok\.com|pinterest\.[a-z.]+|pin\.it|x\.com|twitter\.com|t\.co|whatsapp\.com|wa\.me)$/i;
+// Where those sites tuck the real destination: google.com/aclk?adurl=…, /url?q=…, l.facebook.com/l.php?u=…
+const REDIRECT_PARAMS = ["adurl", "url", "q", "u", "dest", "destination"];
+
+function siteName(host: string): string {
+  const h = host.toLowerCase();
+  if (/google|goo\.gl|g\.co/.test(h)) return "Google";
+  if (/facebook|fb\.me/.test(h)) return "Facebook";
+  if (/pinterest|pin\.it/.test(h)) return "Pinterest";
+  if (/instagram/.test(h)) return "Instagram";
+  if (/tiktok/.test(h)) return "TikTok";
+  if (/whatsapp|wa\.me/.test(h)) return "WhatsApp";
+  if (/bing/.test(h)) return "Bing";
+  return "social media";
+}
+
+function webUrl(raw: string): URL | null {
   try {
-    url = new URL(raw.trim());
+    const url = new URL(raw.trim());
+    return url.protocol === "https:" || url.protocol === "http:" ? url : null;
   } catch {
     return null;
   }
-  if (!["https:", "http:"].includes(url.protocol)) return null;
+}
+
+export type ShopLink =
+  | { ok: true; url: string; /** true when the shop link was dug out of a Google/social link */ unwrapped: boolean }
+  | { ok: false; problem: string };
+
+/** Turns what someone pasted into the shop's own product link, or explains why it isn't one. */
+export function resolveShopLink(raw: string): ShopLink | null {
+  let url = webUrl(raw);
+  if (!url) return null;
+  let unwrapped = false;
+  for (let hops = 0; hops < 3 && NOT_A_SHOP.test(url.hostname); hops++) {
+    const inner = REDIRECT_PARAMS.map((p) => webUrl(url!.searchParams.get(p) ?? "")).find(Boolean);
+    if (!inner) {
+      const name = siteName(url.hostname);
+      return {
+        ok: false,
+        problem: `That’s a ${name} link, not the shop’s own page. Open the product on the shop’s website, then copy the link from there.`,
+      };
+    }
+    url = inner;
+    unwrapped = true;
+  }
+  if (NOT_A_SHOP.test(url.hostname))
+    return { ok: false, problem: "That link doesn’t lead to a shop. Please copy the link from the shop’s product page." };
+  return { ok: true, url: url.toString(), unwrapped };
+}
+
+export function guessFromLink(raw: string): LinkGuess | null {
+  const link = resolveShopLink(raw);
+  if (!link?.ok) return null;
+  const url = new URL(link.url);
   const name = guessName(url);
   return { shop: guessShop(url), name, category: name ? guessCategory(name) : "" };
 }
