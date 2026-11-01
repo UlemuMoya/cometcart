@@ -1,18 +1,8 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-
-const TABS = [
-  { href: "/", label: "Home" },
-  { href: "/discover", label: "Discover" },
-  { href: "/wishlist", label: "Wishlist" },
-  { href: "/add", label: "Add a product" },
-];
+import { Suspense } from "react";
+import { ActiveTabs, Tabs } from "@/components/NavTabs";
 
 export function SiteHeader({ account }: { account: React.ReactNode }) {
-  const pathname = usePathname();
-
   return (
     <header className="flex flex-wrap items-center justify-between gap-3">
       <Link
@@ -24,24 +14,10 @@ export function SiteHeader({ account }: { account: React.ReactNode }) {
       </Link>
       <nav aria-label="Main">
         <ul className="flex flex-wrap gap-1.5">
-          {TABS.map((tab) => {
-            const current = pathname === tab.href;
-            return (
-              <li key={tab.href}>
-                <Link
-                  href={tab.href}
-                  aria-current={current ? "page" : undefined}
-                  className={`block rounded-[3px] border px-3.5 py-[7px] ${
-                    current
-                      ? "btn-grad border-transparent"
-                      : "border-line bg-card hover:border-mute"
-                  }`}
-                >
-                  {tab.label}
-                </Link>
-              </li>
-            );
-          })}
+          {/* The highlighted tab depends on the page address, known only per visit. */}
+          <Suspense fallback={<Tabs current={null} />}>
+            <ActiveTabs />
+          </Suspense>
           <li>{account}</li>
         </ul>
       </nav>
