@@ -1,17 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
 import { CATEGORIES } from "@/lib/categories";
 import { guessCategory, guessFromLink, resolveShopLink } from "@/lib/link-guess";
-import { addProduct, type AddProductState } from "@/lib/product-actions";
+import { addProduct, findMatches, type AddProductState, type ProductMatch } from "@/lib/product-actions";
 
 const inputClass =
   "rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink placeholder:text-mute";
 const labelClass = "grid gap-1 text-sm text-mute";
 const fileClass = `${inputClass} file:mr-3 file:rounded-[3px] file:border-0 file:bg-line file:px-3 file:py-1 file:text-ink`;
-
-type Mode = "link" | "photo";
 
 /**
  * Shrinks a photo to at most 1200px and re-saves it as JPEG. This keeps uploads
@@ -29,30 +27,36 @@ async function shrink(file: File): Promise<File> {
   return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
 }
 
-export function AddProductForm() {
+function Thumb({ src, alt }: { src: string | null; alt: string }) {
+  return src ? (
+    // eslint-disable-next-line @next/next/no-img-element -- tiny thumbnail in a list
+    <img src={src} alt={alt} className="h-12 w-12 flex-none rounded-[3px] object-cover" />
+  ) : (
+    <span className="h-12 w-12 flex-none rounded-[3px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]" />
+  );
+}
+
+/** `forProduct`: opened from a product page to add another shop's price to it. */
+export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
   const [state, action, pending] = useActionState<AddProductState, FormData>(addProduct, {});
-  const [mode, setMode] = useState<Mode>("link");
-  const [hasLink, setHasLink] = useState(false);
+  const [checking, startCheck] = useTransition();
   // Kept in state so they survive an error (React clears plain fields after each submit).
   const [url, setUrl] = useState("");
   const [price, setPrice] = useState("");
-  const [linkNote, setLinkNote] = useState<{ problem: boolean; text: string } | null>(null);
   const [shop, setShop] = useState("");
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
+  const [hasLink, setHasLink] = useState(false);
+  const [linkNote, setLinkNote] = useState<{ problem: boolean; text: string } | null>(null);
+  const [matches, setMatches] = useState<ProductMatch[] | null>(null);
+  // Which product this price is for: a match's id, "new", or "" (not chosen yet).
+  const [choice, setChoice] = useState(forProduct?.id ?? "");
   const [preview, setPreview] = useState<string | null>(null);
   const [preparing, setPreparing] = useState(false);
   // Once someone edits a field themselves, a new guess no longer overwrites it.
   const edited = useRef({ shop: false, name: false, category: false });
+  const lastLookup = useRef("");
   const priceRef = useRef<HTMLInputElement>(null);
-
-  function choose(next: Mode) {
-    if (next === mode) return;
-    setMode(next);
-    if (preview) URL.revokeObjectURL(preview);
-    setPreview(null);
-    setHasLink(false);
-  }
 
   function onLink(value: string) {
     const link = resolveShopLink(value);
@@ -64,15 +68,33 @@ export function AddProductForm() {
       setUrl(value);
       setLinkNote(link && !link.ok ? { problem: true, text: link.problem } : null);
     }
+
     const guess = guessFromLink(value);
-    const firstTime = !hasLink && guess != null;
     setHasLink(guess != null);
     if (!guess) return;
     if (!edited.current.shop) setShop(guess.shop);
     if (!edited.current.name) setName(guess.name);
     if (!edited.current.category) setCategory(guess.category);
-    // Price is the one thing a link can't tell us, so go straight there.
-    if (firstTime) setTimeout(() => priceRef.current?.focus(), 0);
+
+    if (forProduct) {
+      setTimeout(() => priceRef.current?.focus(), 0);
+      return;
+    }
+    // Look for this product on Cometcart, so the price joins its comparison.
+    const shopLink = link?.ok ? link.url : value;
+    if (shopLink === lastLookup.current) return;
+    lastLookup.current = shopLink;
+    startCheck(async () => {
+      const found = await findMatches(shopLink);
+      setMatches(found);
+      setChoice(found.length ? "" : "new");
+      if (!found.length) setTimeout(() => priceRef.current?.focus(), 0);
+    });
+  }
+
+  function pick(next: string) {
+    setChoice(next);
+    setTimeout(() => priceRef.current?.focus(), 0);
   }
 
   async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -91,113 +113,84 @@ export function AddProductForm() {
       setPreview(URL.createObjectURL(file)); // couldn't shrink; the server still checks the size
     } finally {
       setPreparing(false);
-      if (mode === "photo") setTimeout(() => priceRef.current?.focus(), 0);
     }
   }
 
-  const ready = mode === "link" ? hasLink : preview != null;
-
-  const photoInput = (
-    <input
-      name="photo"
-      type="file"
-      accept="image/jpeg,image/png,image/webp"
-      capture={mode === "photo" ? "environment" : undefined}
-      required={mode === "photo"}
-      onChange={onPhoto}
-      className={fileClass}
-    />
-  );
-  const photoPreview = preview && (
-    <>
-      {/* eslint-disable-next-line @next/next/no-img-element -- local preview of the chosen file */}
-      <img src={preview} alt="Preview of your photo" className="max-h-48 w-fit rounded-[4px] object-contain" />
-      <label className="flex items-start gap-2 text-sm text-mute">
-        <input name="photoRights" type="checkbox" required className="mt-1" />
-        I took this photo, or I have the right to use it.
-      </label>
-    </>
-  );
+  const isNew = choice === "new";
+  const ready = hasLink && !checking && choice !== "";
+  const cardClass = (on: boolean) =>
+    `flex w-full items-center gap-3 rounded-[3px] border p-2.5 text-left ${
+      on ? "border-warm bg-[rgba(94,234,212,.08)]" : "border-line bg-card hover:border-mute"
+    }`;
 
   return (
     <form action={action} className="grid max-w-[460px] gap-3">
-      <input type="hidden" name="mode" value={mode} />
+      {!isNew && choice && <input type="hidden" name="productId" value={choice} />}
 
-      <div role="radiogroup" aria-label="How do you want to add it?" className="grid grid-cols-2 gap-2">
-        {(
-          [
-            ["link", "🔗 Paste a link", "From a shop’s website"],
-            ["photo", "📷 Add a photo", "Seen it in a shop"],
-          ] as const
-        ).map(([value, label, hint]) => (
-          <button
-            key={value}
-            type="button"
-            role="radio"
-            aria-checked={mode === value}
-            onClick={() => choose(value)}
-            className={`rounded-[3px] border px-3 py-3 text-left ${
-              mode === value ? "btn-grad border-transparent" : "border-line bg-card hover:border-mute"
-            }`}
-          >
-            <span className="block font-semibold">{label}</span>
-            <span className={`block text-xs ${mode === value ? "text-white/80" : "text-mute"}`}>{hint}</span>
-          </button>
-        ))}
-      </div>
+      {forProduct && (
+        <div className="flex items-center gap-3 rounded-[4px] border border-line bg-card p-3">
+          <Thumb src={forProduct.image} alt="" />
+          <div className="min-w-0">
+            <div className="text-sm text-mute">Adding a shop’s price for</div>
+            <div className="font-semibold">{forProduct.name}</div>
+            <div className="text-sm text-mute">{forProduct.summary}</div>
+          </div>
+        </div>
+      )}
 
-      {mode === "link" ? (
-        <>
-          <label className={labelClass}>
-            <span className="text-base text-ink">Paste the product link</span>
-            <input
-              key="url"
-              name="url"
-              type="url"
-              required
-              autoFocus
-              placeholder="https://"
-              value={url}
-              onChange={(e) => onLink(e.target.value)}
-              aria-describedby="link-note"
-              className={`${inputClass} py-[13px] text-base`}
-            />
-          </label>
-          {linkNote && (
-            <p id="link-note" role={linkNote.problem ? "alert" : "status"} className={`text-sm ${linkNote.problem ? "text-[#fda4af]" : "text-warm"}`}>
-              {linkNote.text}
-            </p>
-          )}
-          {!hasLink && !linkNote && (
-            <p className="text-sm text-mute">
-              Copy the link from the shop’s product page and paste it here. We’ll fill in what we can from it.
-            </p>
-          )}
-        </>
-      ) : (
-        <>
-          <label className={labelClass}>
-            <span className="text-base text-ink">Take or choose a photo</span>
-            {photoInput}
-          </label>
-          {photoPreview}
-          {!preview && (
-            <>
-              <p className="text-sm text-mute">
-                Snap the product, or the shelf label with its price. No link needed.
-              </p>
-              <p className="rounded-[4px] border border-line p-3 text-sm text-mute">
-                <strong className="text-ink">Tip:</strong> want the online shop link instead? Open{" "}
-                <strong className="text-ink">Google Lens</strong> (in the Google app or your phone’s camera), point
-                it at the product, open the shop’s page it finds, copy the link, then choose{" "}
-                <button type="button" onClick={() => choose("link")} className="text-acc underline">
-                  Paste a link
+      <label className={labelClass}>
+        <span className="text-base text-ink">Paste the product link</span>
+        <input
+          name="url"
+          type="url"
+          required
+          autoFocus
+          placeholder="https://"
+          value={url}
+          onChange={(e) => onLink(e.target.value)}
+          aria-describedby="link-note"
+          className={`${inputClass} py-[13px] text-base`}
+        />
+      </label>
+      {linkNote && (
+        <p
+          id="link-note"
+          role={linkNote.problem ? "alert" : "status"}
+          className={`text-sm ${linkNote.problem ? "text-[#fda4af]" : "text-warm"}`}
+        >
+          {linkNote.text}
+        </p>
+      )}
+      {!hasLink && !linkNote && (
+        <p className="text-sm text-mute">
+          Copy the link from the shop’s product page and paste it here. We’ll fill in what we can from it.
+        </p>
+      )}
+
+      {hasLink && !forProduct && (
+        <div aria-live="polite">
+          {checking ? (
+            <p className="text-sm text-mute">Checking whether this product is already on Cometcart…</p>
+          ) : matches?.length ? (
+            <fieldset className="grid gap-2">
+              <legend className="mb-2 text-base">Is it one of these? Your price will be compared with theirs.</legend>
+              {matches.map((m) => (
+                <button key={m.id} type="button" aria-pressed={choice === m.id} onClick={() => pick(m.id)} className={cardClass(choice === m.id)}>
+                  <Thumb src={m.image} alt="" />
+                  <span className="min-w-0">
+                    <span className="block font-semibold">{m.name}</span>
+                    <span className="block text-sm text-mute">{m.summary}</span>
+                  </span>
                 </button>
-                .
-              </p>
-            </>
-          )}
-        </>
+              ))}
+              <button type="button" aria-pressed={isNew} onClick={() => pick("new")} className={cardClass(isNew)}>
+                <span className="font-semibold">No, it’s a new product</span>
+              </button>
+            </fieldset>
+          ) : matches ? (
+            <p className="text-sm text-mute">Not on Cometcart yet, so it’ll be added as a new product.</p>
+          ) : null}
+        </div>
       )}
 
       <div hidden={!ready} className="grid gap-3">
@@ -219,27 +212,7 @@ export function AddProductForm() {
         </label>
 
         <fieldset className="grid gap-3 rounded-[4px] border border-line p-3">
-          <legend className="px-1 text-sm text-mute">
-            {mode === "link"
-              ? "Filled in from the link. Change anything that’s wrong."
-              : "What is it, and where did you see it?"}
-          </legend>
-          <label className={labelClass}>
-            Name
-            <input
-              name="name"
-              required
-              maxLength={120}
-              value={name}
-              onChange={(e) => {
-                edited.current.name = true;
-                setName(e.target.value);
-                if (!edited.current.category) setCategory(guessCategory(e.target.value));
-              }}
-              placeholder="What is it?"
-              className={inputClass}
-            />
-          </label>
+          <legend className="px-1 text-sm text-mute">Filled in from the link. Change anything that’s wrong.</legend>
           <label className={labelClass}>
             Shop
             <input
@@ -251,39 +224,67 @@ export function AddProductForm() {
                 edited.current.shop = true;
                 setShop(e.target.value);
               }}
-              placeholder={mode === "photo" ? "Which shop? e.g. Woolworths Sandton" : "Shop name"}
               className={inputClass}
             />
           </label>
-          <label className={labelClass}>
-            Category
-            <select
-              name="category"
-              required
-              value={category}
-              onChange={(e) => {
-                edited.current.category = true;
-                setCategory(e.target.value);
-              }}
-              className={inputClass}
-            >
-              <option value="" disabled>
-                Choose a category
-              </option>
-              {CATEGORIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </label>
+          {isNew && (
+            <>
+              <label className={labelClass}>
+                Name
+                <input
+                  name="name"
+                  required
+                  maxLength={120}
+                  value={name}
+                  onChange={(e) => {
+                    edited.current.name = true;
+                    setName(e.target.value);
+                    if (!edited.current.category) setCategory(guessCategory(e.target.value));
+                  }}
+                  placeholder="What is it?"
+                  className={inputClass}
+                />
+              </label>
+              <label className={labelClass}>
+                Category
+                <select
+                  name="category"
+                  required
+                  value={category}
+                  onChange={(e) => {
+                    edited.current.category = true;
+                    setCategory(e.target.value);
+                  }}
+                  className={inputClass}
+                >
+                  <option value="" disabled>
+                    Choose a category
+                  </option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c}>{c}</option>
+                  ))}
+                </select>
+              </label>
+            </>
+          )}
         </fieldset>
 
-        {mode === "link" && (
+        {isNew && (
           <>
             <label className={labelClass}>
               Photo (optional)
-              {photoInput}
+              <input name="photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} className={fileClass} />
             </label>
-            {photoPreview}
+            {preview && (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element -- local preview of the chosen file */}
+                <img src={preview} alt="Preview of your photo" className="max-h-48 w-fit rounded-[4px] object-contain" />
+                <label className="flex items-start gap-2 text-sm text-mute">
+                  <input name="photoRights" type="checkbox" required className="mt-1" />
+                  I took this photo, or I have the right to use it.
+                </label>
+              </>
+            )}
           </>
         )}
 
@@ -302,7 +303,7 @@ export function AddProductForm() {
           disabled={pending || preparing}
           className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60"
         >
-          {pending ? "Adding…" : preparing ? "Preparing photo…" : "Add product"}
+          {pending ? "Saving…" : preparing ? "Preparing photo…" : isNew ? "Add product" : "Add this price"}
         </button>
       </div>
     </form>

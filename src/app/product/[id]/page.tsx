@@ -106,6 +106,12 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           <Link href="/wishlist" className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold">
             ♡ Save to wishlist
           </Link>
+          <Link
+            href={`/add?product=${product.id}`}
+            className="rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute"
+          >
+            + Add another shop’s price
+          </Link>
         </div>
 
         <h2 className="sec-title !mt-8 !text-2xl">Reviews</h2>
