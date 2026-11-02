@@ -7,8 +7,8 @@ const TABS = [
   { href: "/", label: "Home" },
   { href: "/discover", label: "Discover" },
   { href: "/wishlist", label: "Wishlist" },
-  { href: "/finds", label: "My finds" },
   { href: "/add", label: "Add a product" },
+  { href: "/finds", label: "My finds" },
 ];
 
 /** The main tabs. `current` is the highlighted tab, or null while it's unknown. */
