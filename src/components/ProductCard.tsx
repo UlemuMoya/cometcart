@@ -2,13 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatRand, lowestOffer } from "@/lib/format";
 import type { Product } from "@/lib/types";
+import { SaveButton } from "./SaveButton";
 
 type Props = {
   product: Product;
   badge?: string;
+  /** Whether it's in the visitor's wishlist. Leave out for sample cards. */
+  saved?: boolean;
 };
 
-export function ProductCard({ product, badge }: Props) {
+export function ProductCard({ product, badge, saved }: Props) {
   const best = lowestOffer(product.offers);
   const shops = product.offers.length;
 
@@ -53,12 +56,23 @@ export function ProductCard({ product, badge }: Props) {
           >
             Compare
           </Link>
-          <Link
-            href="/wishlist"
-            className="flex-1 rounded-[3px] border border-line p-2 text-center hover:border-mute"
-          >
-            ♡ Save to wishlist
-          </Link>
+          {saved == null ? (
+            // Sample cards on the home page aren't real products, so there's nothing to save yet.
+            <Link
+              href="/wishlist"
+              className="flex-1 rounded-[3px] border border-line p-2 text-center hover:border-mute"
+            >
+              ♡ Save to wishlist
+            </Link>
+          ) : (
+            <SaveButton
+              productId={product.id}
+              saved={saved}
+              className={`flex-1 rounded-[3px] border p-2 text-center ${
+                saved ? "border-warm text-warm" : "border-line hover:border-mute"
+              }`}
+            />
+          )}
         </div>
       </div>
     </article>

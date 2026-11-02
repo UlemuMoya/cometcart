@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getProduct } from "@/lib/catalogue";
+import { SaveButton } from "@/components/SaveButton";
 import { formatRand } from "@/lib/format";
+import { getSavedIds } from "@/lib/wishlist";
 
 export default function ProductPage(props: PageProps<"/product/[id]">) {
   return (
@@ -17,8 +19,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const { id } = await params;
-  const product = UUID.test(id) ? await getProduct(id) : null;
+  const [product, savedIds] = UUID.test(id) ? await Promise.all([getProduct(id), getSavedIds()]) : [null, null];
   if (!product || product.offers.length === 0) notFound();
+  const saved = savedIds?.has(product.id) ?? false;
 
   const offers = product.offers; // already cheapest first
   const several = offers.length > 1;
@@ -103,9 +106,11 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          <Link href="/wishlist" className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold">
-            ♡ Save to wishlist
-          </Link>
+          <SaveButton
+            productId={product.id}
+            saved={saved}
+            className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60"
+          />
           <Link
             href={`/add?product=${product.id}`}
             className="rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute"

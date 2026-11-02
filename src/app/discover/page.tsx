@@ -7,6 +7,7 @@ import { getCatalogue } from "@/lib/catalogue";
 import { CATEGORIES } from "@/lib/categories";
 import { formatRand } from "@/lib/format";
 import { searchProducts, type PriceRange } from "@/lib/search";
+import { getSavedIds } from "@/lib/wishlist";
 
 const EXAMPLES = ["handbag under R1500", "linen bedding", "sneakers under R1000"];
 
@@ -67,7 +68,7 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
     max: amount(params.max),
   };
 
-  const catalogue = await getCatalogue();
+  const [catalogue, savedIds] = await Promise.all([getCatalogue(), getSavedIds()]);
   const { query, range, results, overBudget } = searchProducts(catalogue, f.q, f.cat, {
     min: f.min,
     max: f.max,
@@ -196,7 +197,7 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
           {results.length ? (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3.5">
               {results.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p.id} product={p} saved={savedIds?.has(p.id) ?? false} />
               ))}
             </div>
           ) : (

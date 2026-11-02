@@ -7,10 +7,9 @@ export default function SignInPage(props: PageProps<"/sign-in">) {
   return (
     <section>
       <PageIntro title="Sign in" intro="Welcome back. Your wishlists are waiting." />
-      <Suspense>
-        <ConfirmFailed searchParams={props.searchParams} />
+      <Suspense fallback={<SignInForm />}>
+        <SignIn searchParams={props.searchParams} />
       </Suspense>
-      <SignInForm />
       <p className="mt-4 text-sm text-mute">
         New to Cometcart?{" "}
         <Link href="/sign-up" className="text-acc underline">
@@ -21,13 +20,20 @@ export default function SignInPage(props: PageProps<"/sign-in">) {
   );
 }
 
-async function ConfirmFailed({ searchParams }: Pick<PageProps<"/sign-in">, "searchParams">) {
-  const { confirm } = await searchParams;
-  if (confirm !== "failed") return null;
+async function SignIn({ searchParams }: Pick<PageProps<"/sign-in">, "searchParams">) {
+  const { confirm, next } = await searchParams;
   return (
-    <p role="alert" className="mb-4 max-w-[460px] text-[#fda4af]">
-      That confirmation link didn’t work. It may have expired or already been used. Try signing
-      in, or sign up again for a fresh link.
-    </p>
+    <>
+      {confirm === "failed" && (
+        <p role="alert" className="mb-4 max-w-[460px] text-[#fda4af]">
+          That confirmation link didn’t work. It may have expired or already been used. Try signing
+          in, or sign up again for a fresh link.
+        </p>
+      )}
+      {typeof next === "string" && next !== "/wishlist" && (
+        <p className="mb-4 max-w-[460px] text-mute">Sign in to save to your wishlist. You’ll come straight back.</p>
+      )}
+      <SignInForm next={typeof next === "string" ? next : undefined} />
+    </>
   );
 }

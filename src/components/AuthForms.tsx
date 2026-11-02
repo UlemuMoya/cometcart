@@ -23,10 +23,11 @@ function Status({ state }: { state: FormState }) {
   return null;
 }
 
-export function SignInForm() {
+export function SignInForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState(signIn, {});
   return (
     <form action={action} className="grid max-w-[460px] gap-3">
+      {next && <input type="hidden" name="next" value={next} />}
       <label className={labelClass}>
         Email
         <input name="email" type="email" autoComplete="email" required className={inputClass} />

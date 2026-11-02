@@ -46,7 +46,9 @@ export async function signIn(_prev: FormState, form: FormData): Promise<FormStat
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: friendly(error.message) };
-  redirect("/account");
+  // Back to where they were (e.g. the product they tried to save). Only our own pages.
+  const next = text(form, "next");
+  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/account");
 }
 
 export async function signOut() {
