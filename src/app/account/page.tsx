@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { DeleteAccountForm, ProfileForm } from "@/components/AuthForms";
 import { PageIntro } from "@/components/PageIntro";
 import { signOut } from "@/lib/auth-actions";
-import { createClient, getCurrentUser } from "@/lib/supabase/server";
+import { createClient, getCurrentUser, isOwner } from "@/lib/supabase/server";
 
 export default function AccountPage(props: PageProps<"/account">) {
   return (
@@ -62,6 +62,11 @@ async function Account({ searchParams }: Pick<PageProps<"/account">, "searchPara
         <Link href="/reset-password" className={ghostClass}>
           Change password
         </Link>
+        {(await isOwner(user.id)) && (
+          <Link href="/manage" className={ghostClass}>
+            Manage Discover
+          </Link>
+        )}
       </div>
 
       <h2 className="sec-title">Delete your account</h2>

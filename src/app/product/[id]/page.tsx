@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getProduct } from "@/lib/catalogue";
 import { ChangePhotoForm } from "@/components/ChangePhotoForm";
+import { ConfirmButton } from "@/components/ConfirmButton";
 import { RemoveFindButton } from "@/components/RemoveFindButton";
 import { SaveButton } from "@/components/SaveButton";
 import { formatRand } from "@/lib/format";
@@ -170,15 +171,23 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
 
         {canChangePhoto && (
           <div className="mt-6 grid gap-2 border-t border-line pt-4 text-sm text-mute">
-            {owner && <span>Owner tools for this Discover product:</span>}
+            {owner && (
+              <span>
+                Owner tools for this Discover product (or see them all in{" "}
+                <Link href="/manage" className="text-acc underline">
+                  Manage Discover
+                </Link>
+                ):
+              </span>
+            )}
             <ChangePhotoForm productId={product.id} />
             {owner && (
               <form action={setListed}>
                 <input type="hidden" name="productId" value={product.id} />
                 <input type="hidden" name="show" value="false" />
-                <button type="submit" className="text-acc underline">
+                <ConfirmButton message={`Remove “${product.name}” from Discover?`} className="text-acc underline">
                   Remove from Discover
-                </button>{" "}
+                </ConfirmButton>{" "}
                 {product.addedBy === user?.id
                   ? "(it moves back to your wishlist)"
                   : "(no shopper will see it any more)"}

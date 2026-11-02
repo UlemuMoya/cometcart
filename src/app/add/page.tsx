@@ -53,5 +53,19 @@ async function AddOrSignIn({ searchParams }: Pick<PageProps<"/add">, "searchPara
         }
       : undefined;
 
-  return <AddProductForm key={forProduct?.id ?? "new"} forProduct={forProduct} owner={await isOwner(user.id)} />;
+  const owner = await isOwner(user.id);
+  return (
+    <>
+      {owner && (
+        <p className="mb-4 text-sm text-mute">
+          Owner:{" "}
+          <Link href="/manage" className="text-acc underline">
+            Manage Discover
+          </Link>{" "}
+          to change photos or remove products.
+        </p>
+      )}
+      <AddProductForm key={forProduct?.id ?? "new"} forProduct={forProduct} owner={owner} />
+    </>
+  );
 }

@@ -102,7 +102,7 @@ export async function setListed(form: FormData) {
   // The database checks they're the owner (and, for adding, that it's their own product).
   const show = form.get("show") === "true";
   await supabase.rpc("set_listed", { product: text(form, "productId"), show });
-  if (!show) redirect("/discover");
+  if (!show && text(form, "then") !== "stay") redirect("/discover");
   refresh();
 }
 
