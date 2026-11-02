@@ -28,6 +28,13 @@ export async function createClient() {
   });
 }
 
+/** Whether this person runs the site (listed in public.admins, set in the Supabase SQL Editor). */
+export async function isOwner(userId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("admins").select("user_id").eq("user_id", userId).maybeSingle();
+  return data != null;
+}
+
 /** The signed-in person, or null. Checked with Supabase, not just read from the cookie. */
 export async function getCurrentUser() {
   if (!supabaseConfigured) return null;

@@ -1,5 +1,6 @@
 "use server";
 
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCatalogue, getProduct } from "@/lib/catalogue";
 import { CATEGORIES } from "@/lib/categories";
@@ -66,6 +67,17 @@ function toMatch(p: Product): ProductMatch {
     image: p.image ?? null,
     summary: `from ${formatRand(lowestOffer(p.offers).priceZar)} · ${shops} shop${shops > 1 ? "s" : ""}`,
   };
+}
+
+/** Site owner only: show one of their own finds in Discover, or take it back out. */
+export async function setListed(form: FormData) {
+  if (!supabaseConfigured) return;
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) redirect("/sign-in");
+  // The database checks they're the owner and that it's their own product.
+  await supabase.rpc("set_listed", { product: text(form, "productId"), show: form.get("show") === "true" });
+  refresh();
 }
 
 /** Adds a shop's price: to an existing product (`productId`), or as a new product. */

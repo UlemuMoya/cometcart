@@ -19,6 +19,8 @@ export type Product = {
   offers: Offer[];
   /** In Discover. False for a shopper's private find. */
   listed?: boolean;
+  /** Who added it (a user id), if anyone. */
+  addedBy?: string | null;
   /** Product page. Placeholder products have none yet. */
   href?: string;
 };
