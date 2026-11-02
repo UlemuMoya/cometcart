@@ -211,11 +211,11 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
                 </button>
               ))}
               <button type="button" aria-pressed={isNew} onClick={() => pick("new")} className={cardClass(isNew)}>
-                <span className="font-semibold">No, keep it in My finds</span>
+                <span className="font-semibold">No, just save it to my wishlist</span>
               </button>
             </fieldset>
           ) : matches ? (
-            <p className="text-sm text-mute">Not in Discover, so it’ll be kept in My finds, where only you can see it.</p>
+            <p className="text-sm text-mute">Not in Discover, so it’ll be saved to your wishlist, where only you can see it.</p>
           ) : null}
         </div>
       )}
@@ -330,7 +330,7 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
           disabled={pending || preparing}
           className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60"
         >
-          {pending ? "Saving…" : preparing ? "Preparing photo…" : isNew ? "Add to My finds" : "Add this price"}
+          {pending ? "Saving…" : preparing ? "Preparing photo…" : isNew ? "Save to my wishlist" : "Add this price"}
         </button>
       </div>
     </form>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getProduct } from "@/lib/catalogue";
+import { RemoveFindButton } from "@/components/RemoveFindButton";
 import { SaveButton } from "@/components/SaveButton";
 import { formatRand } from "@/lib/format";
 import { setListed } from "@/lib/product-actions";
@@ -56,8 +57,8 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             {product.category}
           </Link>
         ) : (
-          <Link href="/finds" className="text-sm text-acc underline">
-            My finds · only you can see this
+          <Link href="/wishlist" className="text-sm text-acc underline">
+            In your wishlist · only you can see this
           </Link>
         )}
         <h1 className="mb-2 mt-1 font-display text-[clamp(28px,5vw,40px)] font-medium leading-[1.1]">
@@ -117,11 +118,19 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          <SaveButton
-            productId={product.id}
-            saved={saved}
-            className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60"
-          />
+          {product.listed ? (
+            <SaveButton
+              productId={product.id}
+              saved={saved}
+              className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60"
+            />
+          ) : (
+            <RemoveFindButton
+              productId={product.id}
+              thenGoToWishlist
+              className="rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute"
+            />
+          )}
           <Link
             href={`/add?product=${product.id}`}
             className="rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute"

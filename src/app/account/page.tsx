@@ -70,7 +70,7 @@ async function Account({ searchParams }: Pick<PageProps<"/account">, "searchPara
         <ul className="my-2 list-disc pl-5">
           <li>your sign-in and profile (email, name, sizes, budget, style)</li>
           <li>your wishlist, and its share link stops working</li>
-          <li>your finds, including any photos you uploaded</li>
+          <li>products you added from shop links, including any photos you uploaded</li>
         </ul>
         <p className="mb-4">
           Shop prices you added to products in Discover stay, so other shoppers can still compare,

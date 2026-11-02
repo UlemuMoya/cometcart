@@ -146,39 +146,23 @@ async function Collections() {
       </div>
     );
 
+  // Same as the Wishlist page: products added from shop links, then ones saved from Discover.
   const [saved, finds] = await Promise.all([getProducts(wishlist?.productIds ?? []), getMyFinds()]);
+  const items = [...finds, ...saved.filter((p) => p.listed)];
   return (
-    <div className="grid gap-2.5">
-      <div className={boxClass}>
-        <div>
-          <strong>{wishlist?.name ?? "My wishlist"}</strong>
-          <div className="text-sm text-mute">{saved.length} saved</div>
-        </div>
-        {saved.length ? (
-          <Thumbs products={saved} />
-        ) : (
-          <span className="text-[15px] text-mute">Save something and it appears here</span>
-        )}
-        <Link href="/wishlist" className={openClass}>
-          Open<span className="sr-only"> your wishlist</span>
-        </Link>
+    <div className={boxClass}>
+      <div>
+        <strong>{wishlist?.name ?? "My wishlist"}</strong>
+        <div className="text-sm text-mute">{items.length} saved</div>
       </div>
-      <div className={boxClass}>
-        <div>
-          <strong>My finds</strong>
-          <div className="text-sm text-mute">
-            {finds.length} added from shop links · only you can see these
-          </div>
-        </div>
-        {finds.length ? (
-          <Thumbs products={finds} />
-        ) : (
-          <span className="text-[15px] text-mute">Paste a link from any shop to keep it here</span>
-        )}
-        <Link href="/finds" className={openClass}>
-          Open<span className="sr-only"> My finds</span>
-        </Link>
-      </div>
+      {items.length ? (
+        <Thumbs products={items} />
+      ) : (
+        <span className="text-[15px] text-mute">Save something and it appears here</span>
+      )}
+      <Link href="/wishlist" className={openClass}>
+        Open<span className="sr-only"> your wishlist</span>
+      </Link>
     </div>
   );
 }

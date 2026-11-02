@@ -4,14 +4,18 @@ import { Suspense } from "react";
 import { PageIntro } from "@/components/PageIntro";
 import { ProductCard } from "@/components/ProductCard";
 import { CopyLinkButton, DeleteWishlistButton, RenameForm } from "@/components/WishlistTools";
-import { getProducts } from "@/lib/catalogue";
+import { getMyFinds, getProducts } from "@/lib/catalogue";
+import type { Product } from "@/lib/types";
 import { getMyWishlist } from "@/lib/wishlist";
 import { newShareLink, setPublic } from "@/lib/wishlist-actions";
 
 export default function WishlistPage() {
   return (
     <section>
-      <PageIntro title="Your wishlist" intro="Products from any shop, in one place." />
+      <PageIntro
+        title="Your wishlist"
+        intro="Products from any shop, in one place: ones you’ve saved from Discover and ones you’ve added from shop links."
+      />
       <Suspense fallback={<p className="text-mute">Loading your wishlist…</p>}>
         <MyWishlist />
       </Suspense>
@@ -20,6 +24,16 @@ export default function WishlistPage() {
 }
 
 const ghostClass = "rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute";
+
+function ItemGrid({ items }: { items: Product[] }) {
+  return (
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3.5">
+      {items.map((p) => (
+        <ProductCard key={p.id} product={p} saved />
+      ))}
+    </div>
+  );
+}
 
 async function MyWishlist() {
   const list = await getMyWishlist();
@@ -38,16 +52,31 @@ async function MyWishlist() {
       </div>
     );
 
-  const items = await getProducts(list?.productIds ?? []);
+  // Products saved from Discover, plus products you added from shop links (only you see those).
+  const [saved, finds] = await Promise.all([getProducts(list?.productIds ?? []), getMyFinds()]);
+  const items = [...finds, ...saved.filter((p) => p.listed)];
 
-  if (!list || !items.length)
+  if (!items.length)
     return (
       <p className="py-6 text-mute">
-        Nothing saved yet. Tap “♡ Save to wishlist” on any product and it appears here.{" "}
+        Nothing saved yet. Tap “♡ Save” on any product in{" "}
         <Link href="/discover" className="text-acc underline">
-          Discover products
+          Discover
         </Link>
+        , or{" "}
+        <Link href="/add" className="text-acc underline">
+          paste a link from any shop
+        </Link>
+        , and it appears here.
       </p>
+    );
+
+  if (!list)
+    return (
+      <>
+        <ItemGrid items={items} />
+        <p className="mt-6 text-mute">Save a product from Discover to get a link you can share.</p>
+      </>
     );
 
   const h = await headers();
@@ -61,16 +90,12 @@ async function MyWishlist() {
       <p className="mb-4 text-sm text-mute">
         {items.length} saved · {list.isPublic ? "Public" : "Private"}
       </p>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3.5">
-        {items.map((p) => (
-          <ProductCard key={p.id} product={p} saved />
-        ))}
-      </div>
+      <ItemGrid items={items} />
 
       <h2 className="sec-title">Share it</h2>
       <p className="mb-3 max-w-[560px] text-mute">
-        Anyone you send this link to can see your list, but can’t change it. Items from My finds stay
-        private, so they won’t see those.
+        Anyone you send this link to can see your list, but can’t change it. Items marked “Only you can
+        see this” stay private.
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <input

@@ -11,7 +11,7 @@ export default function AddProductPage(props: PageProps<"/add">) {
     <section>
       <PageIntro
         title="Add a product"
-        intro="Found something at a shop? Paste its link. If it’s in Discover, its price joins the comparison. If not, it’s kept in My finds, just for you."
+        intro="Found something at a shop? Paste its link. If it’s in Discover, its price joins the comparison. If not, it’s saved to your wishlist, just for you."
       />
       <Suspense fallback={<p className="text-mute">Loading…</p>}>
         <AddOrSignIn searchParams={props.searchParams} />

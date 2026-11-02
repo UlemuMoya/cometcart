@@ -6,6 +6,7 @@ import { getCatalogue, getProduct } from "@/lib/catalogue";
 import { CATEGORIES } from "@/lib/categories";
 import { formatRand, lowestOffer } from "@/lib/format";
 import { guessFromLink, resolveShopLink } from "@/lib/link-guess";
+import { ownPhotoPath, PHOTO_BUCKET } from "@/lib/photos";
 import { searchProducts } from "@/lib/search";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +25,6 @@ export type ProductMatch = {
   summary: string; // "from R1 299 · 3 shops"
 };
 
-const PHOTO_BUCKET = "product-photos";
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 
 function text(form: FormData, key: string) {
@@ -67,6 +67,30 @@ function toMatch(p: Product): ProductMatch {
     image: p.image ?? null,
     summary: `from ${formatRand(lowestOffer(p.offers).priceZar)} · ${shops} shop${shops > 1 ? "s" : ""}`,
   };
+}
+
+/**
+ * Removes a product you added from a link (one that isn't in Discover), with its
+ * prices and photo. It only ever lived in your wishlist, so this deletes it.
+ */
+export async function removeFind(form: FormData) {
+  if (!supabaseConfigured) return;
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) redirect("/sign-in");
+  const { data: product } = await supabase
+    .from("products")
+    .select("image")
+    .eq("id", text(form, "productId"))
+    .eq("added_by", auth.user.id)
+    .eq("listed", false)
+    .maybeSingle();
+  if (!product) return;
+  await supabase.from("products").delete().eq("id", text(form, "productId"));
+  const photo = ownPhotoPath(product.image, auth.user.id);
+  if (photo) await supabase.storage.from(PHOTO_BUCKET).remove([photo]);
+  if (text(form, "then") === "wishlist") redirect("/wishlist");
+  refresh();
 }
 
 /** Site owner only: show one of their own finds in Discover, or take it back out. */

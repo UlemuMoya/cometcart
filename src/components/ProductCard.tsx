@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatRand, lowestOffer } from "@/lib/format";
 import type { Product } from "@/lib/types";
+import { RemoveFindButton } from "./RemoveFindButton";
 import { SaveButton } from "./SaveButton";
 
 type Props = {
@@ -14,6 +15,9 @@ type Props = {
 export function ProductCard({ product, badge, saved }: Props) {
   const best = lowestOffer(product.offers);
   const shops = product.offers.length;
+  // Added by the visitor from a shop link: it lives only in their wishlist.
+  const ownFind = product.listed === false;
+  badge ??= ownFind ? "Only you can see this" : undefined;
 
   return (
     <article className="lift relative flex h-full flex-col overflow-hidden rounded-[4px] border border-[rgba(140,170,255,.14)] bg-card">
@@ -56,14 +60,21 @@ export function ProductCard({ product, badge, saved }: Props) {
           >
             Compare
           </Link>
-          <SaveButton
-            productId={product.id}
-            saved={saved}
-            short
-            className={`flex-1 rounded-[3px] border p-2 text-center ${
-              saved ? "border-warm text-warm" : "border-line hover:border-mute"
-            }`}
-          />
+          {ownFind ? (
+            <RemoveFindButton
+              productId={product.id}
+              className="flex-1 rounded-[3px] border border-line p-2 text-center hover:border-mute"
+            />
+          ) : (
+            <SaveButton
+              productId={product.id}
+              saved={saved}
+              short
+              className={`flex-1 rounded-[3px] border p-2 text-center ${
+                saved ? "border-warm text-warm" : "border-line hover:border-mute"
+              }`}
+            />
+          )}
         </div>
       </div>
     </article>

@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { ownPhotoPath, PHOTO_BUCKET } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/config";
 
@@ -91,12 +92,8 @@ export async function deleteAccount(_prev: FormState, form: FormData): Promise<F
 
   // Photos they uploaded for their private finds. (The database can't delete stored files itself.)
   const { data: finds } = await supabase.from("products").select("image").eq("added_by", me).eq("listed", false);
-  const marker = "/product-photos/";
-  const paths = (finds ?? [])
-    .map((p) => p.image as string | null)
-    .filter((url): url is string => !!url && url.includes(`${marker}${me}/`))
-    .map((url) => url.slice(url.indexOf(marker) + marker.length));
-  if (paths.length) await supabase.storage.from("product-photos").remove(paths);
+  const paths = (finds ?? []).map((p) => ownPhotoPath(p.image, me)).filter((p) => p != null);
+  if (paths.length) await supabase.storage.from(PHOTO_BUCKET).remove(paths);
 
   const { error } = await supabase.rpc("delete_my_account");
   if (error) return { error: "Couldn’t delete your account. Please try again, or contact us." };
