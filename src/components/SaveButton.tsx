@@ -5,7 +5,18 @@ import { useState, useTransition } from "react";
 import { toggleSave } from "@/lib/wishlist-actions";
 
 /** "♡ Save to wishlist" that saves or unsaves in place. Signed-out people are sent to sign in first. */
-export function SaveButton({ productId, saved: initial, className }: { productId: string; saved: boolean; className?: string }) {
+export function SaveButton({
+  productId,
+  saved: initial,
+  short = false,
+  className,
+}: {
+  productId: string;
+  saved: boolean;
+  /** "♡ Save" instead of "♡ Save to wishlist", for narrow product cards. */
+  short?: boolean;
+  className?: string;
+}) {
   const router = useRouter();
   const [saved, setSaved] = useState(initial);
   const [error, setError] = useState("");
@@ -31,7 +42,8 @@ export function SaveButton({ productId, saved: initial, className }: { productId
   return (
     <>
       <button type="button" aria-pressed={saved} disabled={pending} onClick={onClick} className={className}>
-        {saved ? "♥ Saved to wishlist" : "♡ Save to wishlist"}
+        {saved ? "♥ Saved" : "♡ Save"}
+        <span className={short ? "sr-only" : undefined}> to wishlist</span>
       </button>
       {error && (
         <span role="alert" className="basis-full text-sm text-[#fda4af]">

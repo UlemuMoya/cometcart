@@ -59,6 +59,7 @@ export function ProductCard({ product, badge, saved }: Props) {
           <SaveButton
             productId={product.id}
             saved={saved}
+            short
             className={`flex-1 rounded-[3px] border p-2 text-center ${
               saved ? "border-warm text-warm" : "border-line hover:border-mute"
             }`}
