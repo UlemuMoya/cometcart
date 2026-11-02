@@ -11,6 +11,7 @@ type OfferRow = {
   price_zar: number | string;
   url: string | null; // null when added from a photo, without a link
   price_checked_at: string;
+  added_by: string | null;
 };
 
 type ProductRow = {
@@ -25,7 +26,7 @@ type ProductRow = {
 };
 
 const SELECT =
-  "id, name, category, image, description, listed, added_by, offers (id, shop_name, price_zar, url, price_checked_at)";
+  "id, name, category, image, description, listed, added_by, offers (id, shop_name, price_zar, url, price_checked_at, added_by)";
 
 // Discover is public, so it's read without the visitor's sign-in cookie.
 function publicClient() {
@@ -49,6 +50,7 @@ function toProduct(row: ProductRow): Product {
         priceZar: Number(o.price_zar),
         checkedOn: formatCheckedDate(o.price_checked_at),
         url: o.url ?? undefined,
+        addedBy: o.added_by,
       }))
       .sort((a, b) => a.priceZar - b.priceZar),
   };

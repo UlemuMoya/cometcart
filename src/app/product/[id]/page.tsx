@@ -32,6 +32,7 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const user = savedIds ? await getCurrentUser() : null;
   const owner = !!user && product.listed === true && (await isOwner(user.id));
   const canChangePhoto = owner || (!!user && !product.listed && product.addedBy === user.id);
+  const canEdit = canChangePhoto || (!!user && product.offers.some((o) => o.addedBy === user.id));
   const elsewhere = otherShopLinks(product.name, product.category, product.offers.map((o) => o.shop));
 
   const offers = product.offers; // already cheapest first
@@ -143,6 +144,13 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             + Add another shop’s price
           </Link>
         </div>
+        {canEdit && (
+          <p className="mt-3 text-sm">
+            <Link href={`/product/${product.id}/edit`} className="text-acc underline">
+              ✎ Edit name, category, photo or your prices
+            </Link>
+          </p>
+        )}
 
         {elsewhere.length > 0 && (
           <>

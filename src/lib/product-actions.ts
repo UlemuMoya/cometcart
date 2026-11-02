@@ -16,6 +16,8 @@ export type AddProductState = {
   error?: string;
   /** Set when the link was already added, so we can point to that product. */
   existingHref?: string;
+  /** A success note, e.g. "Saved." */
+  message?: string;
 };
 
 export type ProductMatch = {
@@ -103,6 +105,63 @@ export async function setListed(form: FormData) {
   const show = form.get("show") === "true";
   await supabase.rpc("set_listed", { product: text(form, "productId"), show });
   if (!show && text(form, "then") !== "stay") redirect("/discover");
+  refresh();
+}
+
+/** Fix a product's name or category: your own private one, or (site owner) any product in Discover. */
+export async function updateDetails(_prev: AddProductState, form: FormData): Promise<AddProductState> {
+  if (!supabaseConfigured) return { error: "Editing isn’t connected yet." };
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) redirect("/sign-in");
+  const name = text(form, "name");
+  const category = text(form, "category");
+  if (!name || name.length > 120) return { error: "Please give the product a name (up to 120 characters)." };
+  if (!(CATEGORIES as readonly string[]).includes(category)) return { error: "Please choose a category." };
+
+  const product = await getProduct(text(form, "productId"));
+  if (!product) return { error: "That product no longer exists." };
+  const { error } = product.listed
+    ? await supabase.rpc("update_listed_product", { product: product.id, new_name: name, new_category: category })
+    : await supabase.from("products").update({ name, category }).eq("id", product.id);
+  if (error) return { error: "Couldn’t save. Please try again." };
+  refresh();
+  return { message: "Saved." };
+}
+
+/** Fix a shop price you added. Saving it also marks the price as checked today. */
+export async function updatePrice(_prev: AddProductState, form: FormData): Promise<AddProductState> {
+  if (!supabaseConfigured) return { error: "Editing isn’t connected yet." };
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) redirect("/sign-in");
+  const shop = text(form, "shop");
+  const price = Number(text(form, "price").replace(/[^\d.]/g, ""));
+  if (!shop || shop.length > 60) return { error: "Please enter the shop’s name." };
+  if (!Number.isFinite(price) || price <= 0 || price > 10_000_000)
+    return { error: "Please enter the price in rand, for example 1299." };
+
+  // Row-level security only lets people change prices they added.
+  const { data, error } = await supabase
+    .from("offers")
+    .update({ shop_name: shop, price_zar: price, price_checked_at: new Date().toISOString() })
+    .eq("id", text(form, "offerId"))
+    .eq("added_by", auth.user.id)
+    .select("id");
+  if (error || !data?.length) return { error: "Couldn’t save the price. Please try again." };
+  refresh();
+  return { message: "Saved, and marked as checked today." };
+}
+
+/** Remove a shop price you added. A product keeps at least one price. */
+export async function removePrice(form: FormData) {
+  if (!supabaseConfigured) return;
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) redirect("/sign-in");
+  const product = await getProduct(text(form, "productId"));
+  if (!product || product.offers.length < 2) return;
+  await supabase.from("offers").delete().eq("id", text(form, "offerId")).eq("added_by", auth.user.id);
   refresh();
 }
 

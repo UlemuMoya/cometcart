@@ -8,6 +8,8 @@ export type Offer = {
   priceZar: number;
   checkedOn: string; // date the price was checked, shown next to every price
   url?: string;
+  /** Who added this price (a user id), if anyone. */
+  addedBy?: string | null;
 };
 
 export type Product = {
