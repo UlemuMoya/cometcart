@@ -46,9 +46,15 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
       </div>
 
       <div className="min-w-0">
-        <Link href={`/discover?cat=${encodeURIComponent(product.category)}`} className="text-sm text-acc underline">
-          {product.category}
-        </Link>
+        {product.listed ? (
+          <Link href={`/discover?cat=${encodeURIComponent(product.category)}`} className="text-sm text-acc underline">
+            {product.category}
+          </Link>
+        ) : (
+          <Link href="/finds" className="text-sm text-acc underline">
+            My finds · only you can see this
+          </Link>
+        )}
         <h1 className="mb-2 mt-1 font-display text-[clamp(28px,5vw,40px)] font-medium leading-[1.1]">
           {product.name}
         </h1>

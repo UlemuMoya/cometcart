@@ -58,3 +58,6 @@ join (values
   ('Robot vacuum cleaner', 'Circuit Hub', 2999), ('Robot vacuum cleaner', 'Haven Home', 3199),
   ('Bluetooth headphones', 'Nova Mart', 899), ('Bluetooth headphones', 'Circuit Hub', 949)
 ) as o(name, shop, price) on o.name = p.name;
+
+-- Show them in Discover (needs migration 0005).
+update public.products set listed = true where description like 'Sample product%';

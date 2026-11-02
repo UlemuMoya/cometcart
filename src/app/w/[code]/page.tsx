@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/ProductCard";
-import { getCatalogue } from "@/lib/catalogue";
+import { getProducts } from "@/lib/catalogue";
 import { getSavedIds, getSharedWishlist } from "@/lib/wishlist";
 
 // Shared lists are private-by-link: keep them out of search engines.
@@ -25,8 +25,7 @@ async function SharedWishlist({ params }: Pick<PageProps<"/w/[code]">, "params">
   const list = await getSharedWishlist(code);
   if (!list) notFound();
 
-  const [catalogue, savedIds] = await Promise.all([getCatalogue(), getSavedIds()]);
-  const items = list.productIds.map((id) => catalogue.find((p) => p.id === id)).filter((p) => p != null);
+  const [items, savedIds] = await Promise.all([getProducts(list.productIds), getSavedIds()]);
 
   return (
     <section>

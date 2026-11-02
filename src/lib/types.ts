@@ -17,6 +17,8 @@ export type Product = {
   image?: string | null;
   description?: string | null;
   offers: Offer[];
+  /** In Discover. False for a shopper's private find. */
+  listed?: boolean;
   /** Product page. Placeholder products have none yet. */
   href?: string;
 };

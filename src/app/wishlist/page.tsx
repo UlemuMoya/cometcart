@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { PageIntro } from "@/components/PageIntro";
 import { ProductCard } from "@/components/ProductCard";
 import { CopyLinkButton, DeleteWishlistButton, RenameForm } from "@/components/WishlistTools";
-import { getCatalogue } from "@/lib/catalogue";
+import { getProducts } from "@/lib/catalogue";
 import { getMyWishlist } from "@/lib/wishlist";
 import { newShareLink, setPublic } from "@/lib/wishlist-actions";
 
@@ -38,10 +38,7 @@ async function MyWishlist() {
       </div>
     );
 
-  const catalogue = list?.productIds.length ? await getCatalogue() : [];
-  const items = (list?.productIds ?? [])
-    .map((id) => catalogue.find((p) => p.id === id))
-    .filter((p) => p != null);
+  const items = await getProducts(list?.productIds ?? []);
 
   if (!list || !items.length)
     return (
@@ -72,7 +69,8 @@ async function MyWishlist() {
 
       <h2 className="sec-title">Share it</h2>
       <p className="mb-3 max-w-[560px] text-mute">
-        Anyone you send this link to can see your list, but can’t change it.
+        Anyone you send this link to can see your list, but can’t change it. Items from My finds stay
+        private, so they won’t see those.
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <input

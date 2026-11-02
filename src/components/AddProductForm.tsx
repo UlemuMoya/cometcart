@@ -197,9 +197,9 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
             </div>
           ) : matches?.length ? (
             <fieldset className="grid gap-2">
-              <legend className="mb-1 text-base">Is it one of these products already on Cometcart?</legend>
+              <legend className="mb-1 text-base">Is it one of these products in Discover?</legend>
               <p className="mb-1 text-sm text-mute">
-                If so, tap it and this shop’s price is added next to the other shops’ prices, so people can compare.
+                If so, tap it and this shop’s price is added next to the other shops’ prices, so everyone can compare.
               </p>
               {matches.map((m) => (
                 <button key={m.id} type="button" aria-pressed={choice === m.id} onClick={() => pick(m.id)} className={cardClass(choice === m.id)}>
@@ -211,11 +211,11 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
                 </button>
               ))}
               <button type="button" aria-pressed={isNew} onClick={() => pick("new")} className={cardClass(isNew)}>
-                <span className="font-semibold">No, it’s a new product</span>
+                <span className="font-semibold">No, keep it in My finds</span>
               </button>
             </fieldset>
           ) : matches ? (
-            <p className="text-sm text-mute">Not on Cometcart yet, so it’ll be added as a new product.</p>
+            <p className="text-sm text-mute">Not in Discover, so it’ll be kept in My finds, where only you can see it.</p>
           ) : null}
         </div>
       )}
@@ -330,7 +330,7 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
           disabled={pending || preparing}
           className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60"
         >
-          {pending ? "Saving…" : preparing ? "Preparing photo…" : isNew ? "Add product" : "Add this price"}
+          {pending ? "Saving…" : preparing ? "Preparing photo…" : isNew ? "Add to My finds" : "Add this price"}
         </button>
       </div>
     </form>
