@@ -39,7 +39,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en-ZA" className={`${dmSans.variable} ${cormorant.variable} ${allura.variable}`}>
-      <body>
+      {/* Some browser extensions (e.g. TotalAV) add a class to <body> before the page loads. */}
+      <body suppressHydrationWarning>
         <main className="mx-auto max-w-[980px] px-4 pb-24 pt-5">
           <SiteHeader
             account={
