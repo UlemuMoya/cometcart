@@ -36,8 +36,11 @@ function Thumb({ src, alt }: { src: string | null; alt: string }) {
   );
 }
 
-/** `forProduct`: opened from a product page to add another shop's price to it. */
-export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
+/**
+ * `forProduct`: opened from a product page to add another shop's price to it.
+ * `owner`: the site owner, who may put a new product straight into Discover.
+ */
+export function AddProductForm({ forProduct, owner = false }: { forProduct?: ProductMatch; owner?: boolean }) {
   const [state, action, pending] = useActionState<AddProductState, FormData>(addProduct, {});
   const [checking, startCheck] = useTransition();
   const [, startSave] = useTransition();
@@ -54,6 +57,7 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
   // Which product this price is for: a match's id, "new", or "" (not chosen yet).
   const [choice, setChoice] = useState(forProduct?.id ?? "");
   const [preview, setPreview] = useState<string | null>(null);
+  const [toDiscover, setToDiscover] = useState(false);
   const [preparing, setPreparing] = useState(false);
   // Once someone edits a field themselves, a new guess no longer overwrites it.
   const edited = useRef({ shop: false, name: false, category: false });
@@ -315,6 +319,22 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
           </>
         )}
 
+        {isNew && owner && (
+          <label className="flex items-start gap-2 rounded-[4px] border border-line p-3 text-sm">
+            <input
+              name="listed"
+              type="checkbox"
+              checked={toDiscover}
+              onChange={(e) => setToDiscover(e.target.checked)}
+              className="mt-1"
+            />
+            <span>
+              <strong>Put it in Discover</strong> (owner only): everyone can see it. Check the name and category
+              are generic, and that you have the rights to the photo.
+            </span>
+          </label>
+        )}
+
         {state.error && (
           <p role="alert" className="text-[#fda4af]">
             {state.error}{" "}
@@ -330,7 +350,7 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
           disabled={pending || preparing}
           className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60"
         >
-          {pending ? "Saving…" : preparing ? "Preparing photo…" : isNew ? "Save to my wishlist" : "Add this price"}
+          {pending ? "Saving…" : preparing ? "Preparing photo…" : isNew ? (toDiscover ? "Add to Discover" : "Save to my wishlist") : "Add this price"}
         </button>
       </div>
     </form>

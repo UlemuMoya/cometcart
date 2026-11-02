@@ -180,5 +180,8 @@ export async function addProduct(_prev: AddProductState, form: FormData): Promis
     return { error: "Couldn’t save the price. Please try again." };
   }
 
+  // Owner ticked "Put it in Discover". The database refuses this for anyone else.
+  if (form.get("listed") === "on") await supabase.rpc("set_listed", { product: product.id, show: true });
+
   redirect(`/product/${product.id}`);
 }

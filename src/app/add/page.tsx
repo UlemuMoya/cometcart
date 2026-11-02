@@ -4,7 +4,7 @@ import { AddProductForm } from "@/components/AddProductForm";
 import { PageIntro } from "@/components/PageIntro";
 import { getProduct } from "@/lib/catalogue";
 import { formatRand } from "@/lib/format";
-import { getCurrentUser } from "@/lib/supabase/server";
+import { getCurrentUser, isOwner } from "@/lib/supabase/server";
 
 export default function AddProductPage(props: PageProps<"/add">) {
   return (
@@ -53,5 +53,5 @@ async function AddOrSignIn({ searchParams }: Pick<PageProps<"/add">, "searchPara
         }
       : undefined;
 
-  return <AddProductForm key={forProduct?.id ?? "new"} forProduct={forProduct} />;
+  return <AddProductForm key={forProduct?.id ?? "new"} forProduct={forProduct} owner={await isOwner(user.id)} />;
 }

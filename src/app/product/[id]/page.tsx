@@ -25,9 +25,9 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const [product, savedIds] = UUID.test(id) ? await Promise.all([getProduct(id), getSavedIds()]) : [null, null];
   if (!product || product.offers.length === 0) notFound();
   const saved = savedIds?.has(product.id) ?? false;
-  // The site owner can move their own finds into Discover, and back.
-  const user = savedIds ? await getCurrentUser() : null;
-  const canList = !!user && product.addedBy === user.id && (await isOwner(user.id));
+  // The site owner can take a product they put in Discover back out.
+  const user = savedIds && product.listed ? await getCurrentUser() : null;
+  const canUnlist = !!user && product.addedBy === user.id && (await isOwner(user.id));
 
   const offers = product.offers; // already cheapest first
   const several = offers.length > 1;
@@ -139,21 +139,15 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           </Link>
         </div>
 
-        {canList && (
-          <form action={setListed} className="mt-5 rounded-[4px] border border-line bg-card p-4">
+        {canUnlist && (
+          <form action={setListed} className="mt-3 text-sm text-mute">
             <input type="hidden" name="productId" value={product.id} />
-            <input type="hidden" name="show" value={String(!product.listed)} />
-            <p className="mb-3 text-sm text-mute">
-              {product.listed
-                ? "Owner only: this is in Discover, so every shopper can see it."
-                : "Owner only: before adding it to Discover, check the name and category are generic and right, and that you have the rights to the photo."}
-            </p>
-            <button
-              type="submit"
-              className="rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute"
-            >
-              {product.listed ? "Remove from Discover" : "Add to Discover"}
-            </button>
+            <input type="hidden" name="show" value="false" />
+            Owner:{" "}
+            <button type="submit" className="text-acc underline">
+              Remove from Discover
+            </button>{" "}
+            (it moves back to your wishlist)
           </form>
         )}
 
