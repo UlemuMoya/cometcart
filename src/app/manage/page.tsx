@@ -57,7 +57,10 @@ async function Manage() {
                 {p.category} · {p.offers.length} shop{p.offers.length > 1 ? "s" : ""} · from {formatRand(p.offers[0].priceZar)}
                 {p.addedBy === user.id ? "" : " · sample"}
               </div>
-              <div className="mt-1.5">
+              <div className="mt-1.5 flex flex-wrap items-start gap-x-4 gap-y-1.5 text-sm">
+                <Link href={`/product/${p.id}/edit`} className="text-acc underline">
+                  ✎ Edit
+                </Link>
                 <ChangePhotoForm productId={p.id} />
               </div>
             </div>

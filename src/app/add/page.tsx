@@ -62,7 +62,7 @@ async function AddOrSignIn({ searchParams }: Pick<PageProps<"/add">, "searchPara
           <Link href="/manage" className="text-acc underline">
             Manage Discover
           </Link>{" "}
-          to change photos or remove products.
+          to edit, change photos or remove products.
         </p>
       )}
       <AddProductForm key={forProduct?.id ?? "new"} forProduct={forProduct} owner={owner} />
