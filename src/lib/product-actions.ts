@@ -93,15 +93,62 @@ export async function removeFind(form: FormData) {
   refresh();
 }
 
-/** Site owner only: show one of their own finds in Discover, or take it back out. */
+/** Site owner only: put one of their own products in Discover, or take any product out. */
 export async function setListed(form: FormData) {
   if (!supabaseConfigured) return;
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/sign-in");
-  // The database checks they're the owner and that it's their own product.
-  await supabase.rpc("set_listed", { product: text(form, "productId"), show: form.get("show") === "true" });
+  // The database checks they're the owner (and, for adding, that it's their own product).
+  const show = form.get("show") === "true";
+  await supabase.rpc("set_listed", { product: text(form, "productId"), show });
+  if (!show) redirect("/discover");
   refresh();
+}
+
+/** Checks a photo from a form. Returns the file, null if none was chosen, or an error. */
+function checkPhoto(form: FormData): File | null | { error: string } {
+  const photo = form.get("photo");
+  if (!(photo instanceof File) || photo.size === 0) return null;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(photo.type)) return { error: "Photos must be JPG, PNG or WebP." };
+  if (photo.size > MAX_PHOTO_BYTES) return { error: "That photo is too large. Please try a smaller one." };
+  if (form.get("photoRights") !== "on") return { error: "Please confirm you took the photo or have the right to use it." };
+  return photo;
+}
+
+/** Uploads to the person's own folder; returns the public URL, or null if it failed. */
+async function uploadPhoto(supabase: Awaited<ReturnType<typeof createClient>>, userId: string, photo: File) {
+  const ext = photo.type === "image/png" ? "png" : photo.type === "image/webp" ? "webp" : "jpg";
+  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  const upload = await supabase.storage.from(PHOTO_BUCKET).upload(path, photo, { contentType: photo.type });
+  return upload.error ? null : supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+/** New photo for a product: your own private one, or (site owner) any product in Discover. */
+export async function changePhoto(_prev: AddProductState, form: FormData): Promise<AddProductState> {
+  if (!supabaseConfigured) return { error: "Photos aren’t connected yet." };
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) redirect("/sign-in");
+  const photo = checkPhoto(form);
+  if (!photo) return { error: "Please choose a photo." };
+  if ("error" in photo) return photo;
+
+  const product = await getProduct(text(form, "productId"));
+  if (!product) return { error: "That product no longer exists." };
+  const image = await uploadPhoto(supabase, auth.user.id, photo);
+  if (!image) return { error: "Couldn’t upload the photo. Please try again." };
+
+  // Discover products go through the owner-only database function; private ones through the normal rules.
+  const { error } = product.listed
+    ? await supabase.rpc("set_product_image", { product: product.id, new_image: image })
+    : await supabase.from("products").update({ image }).eq("id", product.id);
+  if (error) return { error: "Couldn’t save the photo. Please try again." };
+
+  const old = ownPhotoPath(product.image, auth.user.id);
+  if (old) await supabase.storage.from(PHOTO_BUCKET).remove([old]);
+  refresh();
+  return {};
 }
 
 /** Adds a shop's price: to an existing product (`productId`), or as a new product. */
@@ -144,25 +191,15 @@ export async function addProduct(_prev: AddProductState, form: FormData): Promis
   // A new product.
   const name = text(form, "name");
   const category = text(form, "category");
-  const photo = form.get("photo");
-  const hasPhoto = photo instanceof File && photo.size > 0;
   if (!name || name.length > 120) return { error: "Please give the product a name (up to 120 characters)." };
   if (!(CATEGORIES as readonly string[]).includes(category)) return { error: "Please choose a category." };
-  if (hasPhoto) {
-    if (!["image/jpeg", "image/png", "image/webp"].includes(photo.type))
-      return { error: "Photos must be JPG, PNG or WebP." };
-    if (photo.size > MAX_PHOTO_BYTES) return { error: "That photo is too large. Please try a smaller one." };
-    if (form.get("photoRights") !== "on")
-      return { error: "Please confirm you took the photo or have the right to use it." };
-  }
+  const photo = checkPhoto(form);
+  if (photo && "error" in photo) return photo;
 
   let image: string | null = null;
-  if (hasPhoto) {
-    const ext = photo.type === "image/png" ? "png" : photo.type === "image/webp" ? "webp" : "jpg";
-    const path = `${auth.user.id}/${crypto.randomUUID()}.${ext}`;
-    const upload = await supabase.storage.from(PHOTO_BUCKET).upload(path, photo, { contentType: photo.type });
-    if (upload.error) return { error: "Couldn’t upload the photo. Please try again, or add the product without it." };
-    image = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
+  if (photo) {
+    image = await uploadPhoto(supabase, auth.user.id, photo);
+    if (!image) return { error: "Couldn’t upload the photo. Please try again, or add the product without it." };
   }
 
   const { data: product, error: productError } = await supabase

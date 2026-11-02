@@ -3,9 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getProduct } from "@/lib/catalogue";
+import { ChangePhotoForm } from "@/components/ChangePhotoForm";
 import { RemoveFindButton } from "@/components/RemoveFindButton";
 import { SaveButton } from "@/components/SaveButton";
 import { formatRand } from "@/lib/format";
+import { otherShopLinks } from "@/lib/other-shops";
 import { setListed } from "@/lib/product-actions";
 import { getCurrentUser, isOwner } from "@/lib/supabase/server";
 import { getSavedIds } from "@/lib/wishlist";
@@ -25,9 +27,11 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const [product, savedIds] = UUID.test(id) ? await Promise.all([getProduct(id), getSavedIds()]) : [null, null];
   if (!product || product.offers.length === 0) notFound();
   const saved = savedIds?.has(product.id) ?? false;
-  // The site owner can take a product they put in Discover back out.
-  const user = savedIds && product.listed ? await getCurrentUser() : null;
-  const canUnlist = !!user && product.addedBy === user.id && (await isOwner(user.id));
+  // The site owner looks after Discover products; shoppers can change photos on their own private ones.
+  const user = savedIds ? await getCurrentUser() : null;
+  const owner = !!user && product.listed === true && (await isOwner(user.id));
+  const canChangePhoto = owner || (!!user && !product.listed && product.addedBy === user.id);
+  const elsewhere = otherShopLinks(product.name, product.category, product.offers.map((o) => o.shop));
 
   const offers = product.offers; // already cheapest first
   const several = offers.length > 1;
@@ -139,16 +143,48 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           </Link>
         </div>
 
-        {canUnlist && (
-          <form action={setListed} className="mt-3 text-sm text-mute">
-            <input type="hidden" name="productId" value={product.id} />
-            <input type="hidden" name="show" value="false" />
-            Owner:{" "}
-            <button type="submit" className="text-acc underline">
-              Remove from Discover
-            </button>{" "}
-            (it moves back to your wishlist)
-          </form>
+        {elsewhere.length > 0 && (
+          <>
+            <h2 className="sec-title !mt-8 !text-2xl">Check other shops</h2>
+            <p className="mb-3 text-sm text-mute">
+              Opens each shop’s own search for this product. Found it there? Copy the link and add its
+              price to compare.
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {elsewhere.map((shop) => (
+                <li key={shop.name}>
+                  <a
+                    href={shop.href}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    className="block rounded-[3px] border border-line px-3.5 py-2 text-sm hover:border-mute"
+                  >
+                    Search {shop.name}
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {canChangePhoto && (
+          <div className="mt-6 grid gap-2 border-t border-line pt-4 text-sm text-mute">
+            {owner && <span>Owner tools for this Discover product:</span>}
+            <ChangePhotoForm productId={product.id} />
+            {owner && (
+              <form action={setListed}>
+                <input type="hidden" name="productId" value={product.id} />
+                <input type="hidden" name="show" value="false" />
+                <button type="submit" className="text-acc underline">
+                  Remove from Discover
+                </button>{" "}
+                {product.addedBy === user?.id
+                  ? "(it moves back to your wishlist)"
+                  : "(no shopper will see it any more)"}
+              </form>
+            )}
+          </div>
         )}
 
         <h2 className="sec-title !mt-8 !text-2xl">Reviews</h2>

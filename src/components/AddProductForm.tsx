@@ -5,27 +5,12 @@ import { useActionState, useRef, useState, useTransition } from "react";
 import { CATEGORIES } from "@/lib/categories";
 import { guessCategory, guessFromLink, resolveShopLink } from "@/lib/link-guess";
 import { addProduct, findMatches, type AddProductState, type ProductMatch } from "@/lib/product-actions";
+import { shrinkInputPhoto } from "@/lib/shrink-photo";
 
 const inputClass =
   "rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink placeholder:text-mute";
 const labelClass = "grid gap-1 text-sm text-mute";
 const fileClass = `${inputClass} file:mr-3 file:rounded-[3px] file:border-0 file:bg-line file:px-3 file:py-1 file:text-ink`;
-
-/**
- * Shrinks a photo to at most 1200px and re-saves it as JPEG. This keeps uploads
- * small and drops hidden data such as the GPS location some phones add (POPIA).
- */
-async function shrink(file: File): Promise<File> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
-  if (!blob) return file;
-  return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
-}
 
 function Thumb({ src, alt }: { src: string | null; alt: string }) {
   return src ? (
@@ -106,21 +91,10 @@ export function AddProductForm({ forProduct, owner = false }: { forProduct?: Pro
 
   async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const input = e.currentTarget;
-    const file = input.files?.[0];
     if (preview) URL.revokeObjectURL(preview);
-    if (!file) return setPreview(null);
     setPreparing(true);
-    try {
-      const small = await shrink(file);
-      const list = new DataTransfer();
-      list.items.add(small);
-      input.files = list.files;
-      setPreview(URL.createObjectURL(small));
-    } catch {
-      setPreview(URL.createObjectURL(file)); // couldn't shrink; the server still checks the size
-    } finally {
-      setPreparing(false);
-    }
+    setPreview(await shrinkInputPhoto(input));
+    setPreparing(false);
   }
 
   const isNew = choice === "new";
