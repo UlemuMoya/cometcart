@@ -40,7 +40,8 @@ function Thumb({ src, alt }: { src: string | null; alt: string }) {
 export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
   const [state, action, pending] = useActionState<AddProductState, FormData>(addProduct, {});
   const [checking, startCheck] = useTransition();
-  // Kept in state so they survive an error (React clears plain fields after each submit).
+  const [, startSave] = useTransition();
+  // Kept in state so a guess from the link can fill them in.
   const [url, setUrl] = useState("");
   const [price, setPrice] = useState("");
   const [shop, setShop] = useState("");
@@ -126,7 +127,16 @@ export function AddProductForm({ forProduct }: { forProduct?: ProductMatch }) {
     }`;
 
   return (
-    <form action={action} className="grid max-w-[460px] gap-3">
+    <form
+      // Submitted by hand rather than with `action`, because React clears a form after each
+      // `action` submit: the category list would quietly jump back to its first choice.
+      onSubmit={(e) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        startSave(() => action(data));
+      }}
+      className="grid max-w-[460px] gap-3"
+    >
       {!isNew && choice && <input type="hidden" name="productId" value={choice} />}
 
       {forProduct && (
