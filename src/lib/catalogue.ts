@@ -68,6 +68,19 @@ export async function getCatalogue(): Promise<Product[]> {
   return withPrices(data as ProductRow[]);
 }
 
+/**
+ * Discover products people saved or visited most in the last 30 days, most popular first.
+ * Empty until there's real activity (or until migration 0006 has been run).
+ */
+export async function getTrending(catalogue: Product[]): Promise<Product[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await publicClient().rpc("trending_products", { within_days: 30, max_count: 12 });
+  if (error || !data) return [];
+  return (data as { product_id: string }[])
+    .map((row) => catalogue.find((p) => p.id === row.product_id))
+    .filter((p) => p != null);
+}
+
 /** The signed-in person's own finds: products they added that aren't in Discover. */
 export async function getMyFinds(): Promise<Product[]> {
   const user = await getCurrentUser();

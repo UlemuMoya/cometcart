@@ -7,8 +7,8 @@ import { SaveButton } from "./SaveButton";
 type Props = {
   product: Product;
   badge?: string;
-  /** Whether it's in the visitor's wishlist. Leave out for sample cards. */
-  saved?: boolean;
+  /** Whether it's in the visitor's wishlist. */
+  saved: boolean;
 };
 
 export function ProductCard({ product, badge, saved }: Props) {
@@ -56,23 +56,13 @@ export function ProductCard({ product, badge, saved }: Props) {
           >
             Compare
           </Link>
-          {saved == null ? (
-            // Sample cards on the home page aren't real products, so there's nothing to save yet.
-            <Link
-              href="/wishlist"
-              className="flex-1 rounded-[3px] border border-line p-2 text-center hover:border-mute"
-            >
-              ♡ Save to wishlist
-            </Link>
-          ) : (
-            <SaveButton
-              productId={product.id}
-              saved={saved}
-              className={`flex-1 rounded-[3px] border p-2 text-center ${
-                saved ? "border-warm text-warm" : "border-line hover:border-mute"
-              }`}
-            />
-          )}
+          <SaveButton
+            productId={product.id}
+            saved={saved}
+            className={`flex-1 rounded-[3px] border p-2 text-center ${
+              saved ? "border-warm text-warm" : "border-line hover:border-mute"
+            }`}
+          />
         </div>
       </div>
     </article>
