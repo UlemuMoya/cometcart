@@ -51,6 +51,59 @@ export async function signIn(_prev: FormState, form: FormData): Promise<FormStat
   redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/account");
 }
 
+export async function requestPasswordReset(_prev: FormState, form: FormData): Promise<FormState> {
+  if (!supabaseConfigured) return NOT_CONNECTED;
+  const email = text(form, "email");
+  if (!email) return { error: "Please enter your email." };
+  const origin = (await headers()).get("origin") ?? "";
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/confirm?next=/reset-password`,
+  });
+  if (error && /rate limit/i.test(error.message)) return { error: friendly(error.message) };
+  // Same answer whether or not the email has an account, so nobody can use this to check.
+  return {
+    message: `If there’s an account for ${email}, we’ve sent it a link to choose a new password. Open it on this device.`,
+  };
+}
+
+export async function setNewPassword(_prev: FormState, form: FormData): Promise<FormState> {
+  if (!supabaseConfigured) return NOT_CONNECTED;
+  const password = String(form.get("password") ?? "");
+  if (password.length < 8) return { error: "Please use a password of at least 8 characters." };
+  if (password !== String(form.get("confirm") ?? "")) return { error: "The two passwords don’t match." };
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return { error: "That reset link has expired. Please ask for a new one." };
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: friendly(error.message) };
+  redirect("/account?password=changed");
+}
+
+/** POPIA: deletes the person's account and personal data, then signs them out. */
+export async function deleteAccount(_prev: FormState, form: FormData): Promise<FormState> {
+  if (!supabaseConfigured) return NOT_CONNECTED;
+  if (text(form, "confirm").toUpperCase() !== "DELETE") return { error: "Please type DELETE to confirm." };
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) redirect("/sign-in");
+  const me = data.user.id;
+
+  // Photos they uploaded for their private finds. (The database can't delete stored files itself.)
+  const { data: finds } = await supabase.from("products").select("image").eq("added_by", me).eq("listed", false);
+  const marker = "/product-photos/";
+  const paths = (finds ?? [])
+    .map((p) => p.image as string | null)
+    .filter((url): url is string => !!url && url.includes(`${marker}${me}/`))
+    .map((url) => url.slice(url.indexOf(marker) + marker.length));
+  if (paths.length) await supabase.storage.from("product-photos").remove(paths);
+
+  const { error } = await supabase.rpc("delete_my_account");
+  if (error) return { error: "Couldn’t delete your account. Please try again, or contact us." };
+  await supabase.auth.signOut();
+  redirect("/?account=deleted");
+}
+
 export async function signOut() {
   if (supabaseConfigured) {
     const supabase = await createClient();

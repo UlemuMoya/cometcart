@@ -1,7 +1,15 @@
 "use client";
 
 import { useActionState } from "react";
-import { saveProfile, signIn, signUp, type FormState } from "@/lib/auth-actions";
+import {
+  deleteAccount,
+  requestPasswordReset,
+  saveProfile,
+  setNewPassword,
+  signIn,
+  signUp,
+  type FormState,
+} from "@/lib/auth-actions";
 
 const inputClass =
   "rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink placeholder:text-mute";
@@ -121,6 +129,62 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       <Status state={state} />
       <button type="submit" disabled={pending} className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60">
         {pending ? "Saving…" : "Save profile"}
+      </button>
+    </form>
+  );
+}
+
+export function ForgotPasswordForm() {
+  const [state, action, pending] = useActionState(requestPasswordReset, {});
+  return (
+    <form action={action} className="grid max-w-[460px] gap-3">
+      <label className={labelClass}>
+        Email
+        <input name="email" type="email" autoComplete="email" required className={inputClass} />
+      </label>
+      <Status state={state} />
+      <button type="submit" disabled={pending} className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60">
+        {pending ? "Sending…" : "Send me a reset link"}
+      </button>
+    </form>
+  );
+}
+
+export function NewPasswordForm() {
+  const [state, action, pending] = useActionState(setNewPassword, {});
+  return (
+    <form action={action} className="grid max-w-[460px] gap-3">
+      <label className={labelClass}>
+        New password (at least 8 characters)
+        <input name="password" type="password" autoComplete="new-password" minLength={8} required className={inputClass} />
+      </label>
+      <label className={labelClass}>
+        Type it again
+        <input name="confirm" type="password" autoComplete="new-password" minLength={8} required className={inputClass} />
+      </label>
+      <Status state={state} />
+      <button type="submit" disabled={pending} className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60">
+        {pending ? "Saving…" : "Save new password"}
+      </button>
+    </form>
+  );
+}
+
+export function DeleteAccountForm() {
+  const [state, action, pending] = useActionState(deleteAccount, {});
+  return (
+    <form action={action} className="grid max-w-[460px] gap-3">
+      <label className={labelClass}>
+        Type DELETE to confirm
+        <input name="confirm" autoComplete="off" required className={inputClass} />
+      </label>
+      <Status state={state} />
+      <button
+        type="submit"
+        disabled={pending}
+        className="rounded-[3px] border border-[#7f1d3a] px-[18px] py-3 font-semibold text-[#fda4af] hover:border-[#fda4af] disabled:opacity-60"
+      >
+        {pending ? "Deleting…" : "Delete my account"}
       </button>
     </form>
   );

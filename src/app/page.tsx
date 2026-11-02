@@ -8,9 +8,12 @@ import { getCatalogue, getMyFinds, getProducts, getTrending } from "@/lib/catalo
 import type { Product } from "@/lib/types";
 import { getMyWishlist } from "@/lib/wishlist";
 
-export default function Home() {
+export default function Home(props: PageProps<"/">) {
   return (
     <>
+      <Suspense>
+        <AccountDeleted searchParams={props.searchParams} />
+      </Suspense>
       <section className="mast mb-3.5 mt-[22px] rounded-[6px] px-6 py-[30px]">
         <h1 className="mb-2 mt-1.5 font-display text-[clamp(38px,7vw,64px)] font-medium leading-none">
           Find anything. Compare every price. Save what you love.
@@ -67,6 +70,16 @@ export default function Home() {
       </Suspense>
       <p className="mt-2 text-sm text-mute">Registries and shared collections come in the full app.</p>
     </>
+  );
+}
+
+async function AccountDeleted({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
+  const { account } = await searchParams;
+  if (account !== "deleted") return null;
+  return (
+    <p role="status" className="mt-5 rounded-[4px] border border-line bg-card p-3 text-warm">
+      Your account and personal data have been deleted. Thanks for trying Cometcart.
+    </p>
   );
 }
 

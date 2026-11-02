@@ -10,7 +10,12 @@ export default function SignInPage(props: PageProps<"/sign-in">) {
       <Suspense fallback={<SignInForm />}>
         <SignIn searchParams={props.searchParams} />
       </Suspense>
-      <p className="mt-4 text-sm text-mute">
+      <p className="mt-4 text-sm">
+        <Link href="/forgot-password" className="text-acc underline">
+          Forgot your password?
+        </Link>
+      </p>
+      <p className="mt-2 text-sm text-mute">
         New to Cometcart?{" "}
         <Link href="/sign-up" className="text-acc underline">
           Create an account
