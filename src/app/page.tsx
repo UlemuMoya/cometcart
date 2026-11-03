@@ -97,7 +97,7 @@ export default function Home(props: PageProps<"/">) {
 const FEATURES: { title: string; text: string; href?: string }[] = [
   {
     title: "Search in plain words",
-    text: "Type it the way you’d say it, like “air fryer under R1500”. Cometcart understands budgets.",
+    text: "Type it the way you’d say it, like “air fryer under R1500”, and Cometcart keeps to your budget.",
     href: "/discover",
   },
   {
@@ -107,12 +107,12 @@ const FEATURES: { title: string; text: string; href?: string }[] = [
   },
   {
     title: "Save and share",
-    text: "Tap ♡ Save to keep it in your wishlist, then send the link on WhatsApp. People can look but not change it.",
+    text: "Tap ♡ Save to add products to your wishlist (free account), then share it on WhatsApp. Friends can view it but can’t change it.",
     href: "/wishlist",
   },
   {
     title: "Paste a link from any shop",
-    text: "Found something elsewhere? Paste its link to save it, or to add that shop’s price to a comparison.",
+    text: "Seen something in another shop? Paste its link to save it to your wishlist. If we have it, you’ll see how the price compares.",
     href: "/add",
   },
 ];
