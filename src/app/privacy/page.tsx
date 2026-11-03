@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy policy · Cometcart",
+  title: "Privacy policy",
   description: "What personal information Cometcart keeps, why, and your rights under POPIA.",
 };
 

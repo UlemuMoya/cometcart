@@ -20,7 +20,7 @@ export default function Home(props: PageProps<"/">) {
           Find anything. Compare every price. Save what you love.
         </h1>
         <p className="text-[#dcd6ff]">
-          Describe it or snap a photo. Cometcart finds it across South African shops, compares
+          Describe it in your own words. Cometcart finds it across South African shops, compares
           prices, and keeps your wishlist ready to share.
         </p>
       </section>

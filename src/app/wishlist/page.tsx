@@ -8,6 +8,12 @@ import { getMyFinds, getProducts } from "@/lib/catalogue";
 import type { Product } from "@/lib/types";
 import { getMyWishlist } from "@/lib/wishlist";
 import { newShareLink, setPublic } from "@/lib/wishlist-actions";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Your wishlist",
+  description: "Products from any shop, in one place, with a link you can share.",
+};
 
 export default function WishlistPage() {
   return (

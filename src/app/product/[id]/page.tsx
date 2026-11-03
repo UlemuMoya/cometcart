@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
@@ -13,6 +14,31 @@ import { otherShopLinks } from "@/lib/other-shops";
 import { setListed } from "@/lib/product-actions";
 import { getCurrentUser, isOwner } from "@/lib/supabase/server";
 import { getSavedIds } from "@/lib/wishlist";
+
+// The title and preview shown when a product link is shared, e.g. on WhatsApp.
+export async function generateMetadata(props: PageProps<"/product/[id]">): Promise<Metadata> {
+  const { id } = await props.params;
+  const product = UUID.test(id) ? await getProduct(id) : null;
+  if (!product || product.offers.length === 0) return { title: "Product not found" };
+  const low = product.offers[0].priceZar;
+  const high = product.offers.at(-1)!.priceZar;
+  const shops = product.offers.length;
+  const description = `${high > low ? `${formatRand(low)} – ${formatRand(high)}` : formatRand(low)} at ${shops} shop${
+    shops > 1 ? "s" : ""
+  }. Compare prices on Cometcart.`;
+  return {
+    title: product.name,
+    description,
+    openGraph: {
+      title: product.name,
+      description,
+      // Only our own photos: a shop's photo is shown on its product, not reused in previews.
+      ...(product.image && isOwnPhoto(product.image) ? { images: [{ url: product.image }] } : {}),
+    },
+    // A shopper's private product stays out of search engines.
+    ...(product.listed ? {} : { robots: { index: false, follow: false } }),
+  };
+}
 
 export default function ProductPage(props: PageProps<"/product/[id]">) {
   return (

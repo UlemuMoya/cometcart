@@ -5,6 +5,12 @@ import { PageIntro } from "@/components/PageIntro";
 import { getProduct } from "@/lib/catalogue";
 import { formatRand } from "@/lib/format";
 import { getCurrentUser, isOwner } from "@/lib/supabase/server";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Add a product",
+  description: "Paste a product link from any shop to compare its price or save it to your wishlist.",
+};
 
 export default function AddProductPage(props: PageProps<"/add">) {
   return (

@@ -5,6 +5,12 @@ import { DeleteAccountForm, ProfileForm } from "@/components/AuthForms";
 import { PageIntro } from "@/components/PageIntro";
 import { signOut } from "@/lib/auth-actions";
 import { createClient, getCurrentUser, isOwner } from "@/lib/supabase/server";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Your account",
+  description: "Your Cometcart profile and settings.",
+};
 
 export default function AccountPage(props: PageProps<"/account">) {
   return (

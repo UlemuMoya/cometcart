@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { SignUpForm } from "@/components/AuthForms";
 import { PageIntro } from "@/components/PageIntro";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Create an account",
+  description: "Create a free Cometcart account to save products and share your wishlist.",
+};
 
 export default function SignUpPage() {
   return (

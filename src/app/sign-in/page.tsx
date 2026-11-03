@@ -2,6 +2,12 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { SignInForm } from "@/components/AuthForms";
 import { PageIntro } from "@/components/PageIntro";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sign in",
+  description: "Sign in to Cometcart to see your wishlist.",
+};
 
 export default function SignInPage(props: PageProps<"/sign-in">) {
   return (

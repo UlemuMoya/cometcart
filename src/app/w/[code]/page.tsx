@@ -6,11 +6,17 @@ import { ProductCard } from "@/components/ProductCard";
 import { getProducts } from "@/lib/catalogue";
 import { getSavedIds, getSharedWishlist } from "@/lib/wishlist";
 
-// Shared lists are private-by-link: keep them out of search engines.
-export const metadata: Metadata = {
-  title: "Shared wishlist",
-  robots: { index: false, follow: false },
-};
+// The preview shown when the link is sent, e.g. on WhatsApp. Shared lists are
+// private-by-link, so they're kept out of search engines.
+export async function generateMetadata(props: PageProps<"/w/[code]">): Promise<Metadata> {
+  const { code } = await props.params;
+  const list = await getSharedWishlist(code);
+  const title = list ? list.name : "Shared wishlist";
+  const description = list
+    ? `${list.productIds.length} saved on Cometcart. Tap to see them and compare prices.`
+    : "A wishlist shared on Cometcart.";
+  return { title, description, openGraph: { title, description }, robots: { index: false, follow: false } };
+}
 
 export default function SharedWishlistPage(props: PageProps<"/w/[code]">) {
   return (

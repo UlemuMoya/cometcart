@@ -3,7 +3,7 @@ import { PageIntro } from "@/components/PageIntro";
 import { ShopApplyForm } from "@/components/ShopForms";
 
 export const metadata: Metadata = {
-  title: "List your shop · Cometcart",
+  title: "List your shop",
   description: "Show your products and prices to South African shoppers comparing prices on Cometcart.",
 };
 

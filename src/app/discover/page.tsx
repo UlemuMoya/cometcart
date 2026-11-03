@@ -1,15 +1,20 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { PageIntro } from "@/components/PageIntro";
-import { PhotoButton } from "@/components/PhotoButton";
 import { ProductCard } from "@/components/ProductCard";
 import { getCatalogue } from "@/lib/catalogue";
 import { CATEGORIES } from "@/lib/categories";
 import { formatRand } from "@/lib/format";
 import { searchProducts, type PriceRange } from "@/lib/search";
 import { getSavedIds } from "@/lib/wishlist";
+import type { Metadata } from "next";
 
-const EXAMPLES = ["handbag under R1500", "linen bedding", "sneakers under R1000"];
+export const metadata: Metadata = {
+  title: "Discover",
+  description: "Search in your own words and compare prices for the same product at different South African shops.",
+};
+
+const EXAMPLES = ["air fryer under R1500", "wireless headphones", "55-inch TV"];
 
 const PRICE_RANGES: { label: string; min: number | null; max: number | null }[] = [
   { label: "Any price", min: null, max: null },
@@ -84,11 +89,65 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
     status = `${results.length} result${results.length > 1 ? "s" : ""}${what ? ` for ${what}` : ""}${f.cat ? ` in ${f.cat}` : ""}`;
 
   const chip = (current: boolean) =>
-    `block rounded-[3px] border px-3.5 py-[7px] text-sm ${
+    `block whitespace-nowrap rounded-[3px] border px-3.5 py-[7px] text-sm ${
       current ? "btn-grad border-transparent" : "border-line bg-card hover:border-mute"
     }`;
   const fieldClass =
     "w-full min-w-0 rounded-[3px] border border-line bg-card px-2.5 py-2 text-sm placeholder:text-mute";
+
+  // The price ranges plus your own min and max, shown as a side panel or (on phones) folded away.
+  const priceFilter = (
+    <>
+      <ul className="flex flex-wrap gap-2 md:flex-col">
+        {PRICE_RANGES.map((r) => {
+          const current = r.min === f.min && r.max === f.max;
+          return (
+            <li key={r.label}>
+              <Link
+                href={href({ ...f, min: r.min, max: r.max })}
+                aria-current={current ? "true" : undefined}
+                className={chip(current)}
+              >
+                {r.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+      <form action="/discover" className="mt-4 grid gap-2 border-t border-line pt-4">
+        {f.q && <input type="hidden" name="q" value={f.q} />}
+        {f.cat && <input type="hidden" name="cat" value={f.cat} />}
+        <span className="text-sm text-mute">Your own range (R)</span>
+        <div className="flex items-center gap-2">
+          <input
+            name="min"
+            inputMode="numeric"
+            defaultValue={f.min ?? ""}
+            placeholder="Min"
+            aria-label="Minimum price in rand"
+            className={fieldClass}
+          />
+          <span aria-hidden="true" className="text-mute">
+            –
+          </span>
+          <input
+            name="max"
+            inputMode="numeric"
+            defaultValue={f.max ?? ""}
+            placeholder="Max"
+            aria-label="Maximum price in rand"
+            className={fieldClass}
+          />
+        </div>
+        <button
+          type="submit"
+          className="rounded-[3px] border border-line px-3 py-2 text-sm font-semibold hover:border-mute"
+        >
+          Apply
+        </button>
+      </form>
+    </>
+  );
 
   return (
     <>
@@ -100,20 +159,19 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
           type="search"
           name="q"
           defaultValue={f.q}
-          placeholder="Try: black handbag under R1500"
+          placeholder="Try: air fryer under R1500"
           aria-label="Search products"
           className="min-w-0 flex-1 rounded-[3px] border border-line bg-card px-4 py-[13px] placeholder:text-mute"
         />
         <button type="submit" className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold">
           Search
         </button>
-        <PhotoButton />
       </form>
 
       <nav aria-label="Categories" className="mb-5">
-        <ul className="flex flex-wrap gap-2">
+        <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
           {[null, ...CATEGORIES].map((c) => (
-            <li key={c ?? "All"}>
+            <li key={c ?? "All"} className="flex-none">
               <Link
                 href={href({ ...f, cat: c })}
                 aria-current={c === f.cat ? "page" : undefined}
@@ -127,61 +185,24 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
       </nav>
 
       <div className="grid gap-6 md:grid-cols-[190px_1fr]">
-        <aside aria-labelledby="price-heading" className="self-start rounded-[4px] border border-line bg-card p-4">
+        <aside aria-labelledby="price-heading" className="hidden self-start rounded-[4px] border border-line bg-card p-4 md:block">
           <h2 id="price-heading" className="mb-3 font-display text-2xl font-semibold">
             Price
           </h2>
-          <ul className="flex flex-wrap gap-2 md:flex-col">
-            {PRICE_RANGES.map((r) => {
-              const current = r.min === f.min && r.max === f.max;
-              return (
-                <li key={r.label}>
-                  <Link
-                    href={href({ ...f, min: r.min, max: r.max })}
-                    aria-current={current ? "true" : undefined}
-                    className={chip(current)}
-                  >
-                    {r.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-          <form action="/discover" className="mt-4 grid gap-2 border-t border-line pt-4">
-            {f.q && <input type="hidden" name="q" value={f.q} />}
-            {f.cat && <input type="hidden" name="cat" value={f.cat} />}
-            <span className="text-sm text-mute">Your own range (R)</span>
-            <div className="flex items-center gap-2">
-              <input
-                name="min"
-                inputMode="numeric"
-                defaultValue={f.min ?? ""}
-                placeholder="Min"
-                aria-label="Minimum price in rand"
-                className={fieldClass}
-              />
-              <span aria-hidden="true" className="text-mute">
-                –
-              </span>
-              <input
-                name="max"
-                inputMode="numeric"
-                defaultValue={f.max ?? ""}
-                placeholder="Max"
-                aria-label="Maximum price in rand"
-                className={fieldClass}
-              />
-            </div>
-            <button
-              type="submit"
-              className="rounded-[3px] border border-line px-3 py-2 text-sm font-semibold hover:border-mute"
-            >
-              Apply
-            </button>
-          </form>
+          {priceFilter}
         </aside>
 
         <div className="min-w-0">
+          {/* On phones the price filter folds away, so products show without scrolling past it. */}
+          <details
+            open={f.min != null || f.max != null}
+            className="mb-4 rounded-[4px] border border-line bg-card px-4 py-3 md:hidden"
+          >
+            <summary className="cursor-pointer font-semibold">
+              Price{describeRange({ min: f.min, max: f.max }) && `: ${describeRange({ min: f.min, max: f.max })}`}
+            </summary>
+            <div className="mt-3">{priceFilter}</div>
+          </details>
           <p aria-live="polite" className="mb-3 text-sm text-mute">
             {status}
           </p>
