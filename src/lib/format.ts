@@ -18,3 +18,12 @@ export function formatCheckedDate(iso: string): string {
     timeZone: "Africa/Johannesburg",
   });
 }
+
+/** Prices older than this are flagged as "may have changed" and listed for re-checking. */
+export const STALE_AFTER_DAYS = 14;
+
+/** Whether a price was checked longer ago than STALE_AFTER_DAYS. */
+export function isStale(checkedAt: string | undefined): boolean {
+  if (!checkedAt) return false;
+  return Date.now() - new Date(checkedAt).getTime() > STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
+}

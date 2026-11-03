@@ -8,7 +8,7 @@ import { ChangePhotoForm } from "@/components/ChangePhotoForm";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { RemoveFindButton } from "@/components/RemoveFindButton";
 import { SaveButton } from "@/components/SaveButton";
-import { formatRand } from "@/lib/format";
+import { formatRand, isStale } from "@/lib/format";
 import { otherShopLinks } from "@/lib/other-shops";
 import { setListed } from "@/lib/product-actions";
 import { getCurrentUser, isOwner } from "@/lib/supabase/server";
@@ -98,7 +98,10 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
               <tr key={o.id ?? o.shop}>
                 <td className="border-b border-line py-3 pr-2">
                   {o.shop}
-                  <div className="text-xs text-mute">checked {o.checkedOn}</div>
+                  <div className="text-xs text-mute">
+                    checked {o.checkedOn}
+                    {isStale(o.checkedAt) && <span className="text-[#fcd34d]"> · may have changed</span>}
+                  </div>
                 </td>
                 <td className={`border-b border-line px-2 py-3 ${i === 0 && several ? "font-semibold text-warm" : ""}`}>
                   {formatRand(o.priceZar)}

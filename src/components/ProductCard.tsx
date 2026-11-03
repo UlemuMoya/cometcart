@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
-import { formatRand, lowestOffer } from "@/lib/format";
+import { formatRand, isStale, lowestOffer } from "@/lib/format";
 import type { Product } from "@/lib/types";
 import { RemoveFindButton } from "./RemoveFindButton";
 import { SaveButton } from "./SaveButton";
@@ -57,6 +57,7 @@ export function ProductCard({ product, badge, saved }: Props) {
         <span className="text-xs text-mute">
           {shops > 1 ? "Lowest at " : "At "}
           {best.shop} · checked {best.checkedOn}
+          {isStale(best.checkedAt) && <span className="text-[#fcd34d]"> · may have changed</span>}
         </span>
         <div className="mt-auto flex flex-wrap gap-2 pt-2">
           <Link

@@ -7,6 +7,8 @@ export type Offer = {
   shop: string;
   priceZar: number;
   checkedOn: string; // date the price was checked, shown next to every price
+  /** The same moment as an ISO date, for working out how old a price is. */
+  checkedAt?: string;
   url?: string;
   /** Who added this price (a user id), if anyone. */
   addedBy?: string | null;

@@ -49,6 +49,7 @@ function toProduct(row: ProductRow): Product {
         shop: o.shop_name,
         priceZar: Number(o.price_zar),
         checkedOn: formatCheckedDate(o.price_checked_at),
+        checkedAt: o.price_checked_at,
         url: o.url ?? undefined,
         addedBy: o.added_by,
       }))

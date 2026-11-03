@@ -8,7 +8,7 @@ import { ChangePhotoForm } from "@/components/ChangePhotoForm";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { PageIntro } from "@/components/PageIntro";
 import { getCatalogue } from "@/lib/catalogue";
-import { formatRand } from "@/lib/format";
+import { formatRand, isStale, STALE_AFTER_DAYS } from "@/lib/format";
 import { setListed } from "@/lib/product-actions";
 import { getCurrentUser, isOwner } from "@/lib/supabase/server";
 
@@ -33,6 +33,10 @@ async function Manage() {
   const user = await getCurrentUser();
   if (!user || !(await isOwner(user.id))) notFound();
   const products = await getCatalogue();
+  // Oldest first. Checked with the shop's own link, not "Visit shop", so your checks don't count as clicks.
+  const stale = products
+    .flatMap((product) => product.offers.filter((o) => isStale(o.checkedAt)).map((offer) => ({ product, offer })))
+    .sort((a, b) => (a.offer.checkedAt ?? "").localeCompare(b.offer.checkedAt ?? ""));
 
   return (
     <>
@@ -48,6 +52,47 @@ async function Manage() {
         </Link>
         <span className="text-sm text-mute">{products.length} products in Discover</span>
       </p>
+
+      <h2 className="sec-title !mt-2 !text-2xl">Prices to re-check</h2>
+      {stale.length === 0 ? (
+        <p className="mb-6 text-sm text-mute">
+          All prices were checked in the last {STALE_AFTER_DAYS} days. Nothing to do.
+        </p>
+      ) : (
+        <>
+          <p className="mb-3 max-w-[640px] text-sm text-mute">
+            These prices were checked more than {STALE_AFTER_DAYS} days ago, so shoppers see “may have changed”. Open
+            the shop’s page, then click Update and save the current price; it’s marked as checked today. Prices from a
+            shop’s feed update when you import its latest file.
+          </p>
+          <ul className="mb-6 grid gap-1.5">
+            {stale.slice(0, 30).map(({ product, offer }) => (
+              <li
+                key={offer.id}
+                className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[4px] border border-line bg-card px-3 py-2 text-sm"
+              >
+                <Link href={product.href ?? "#"} className="min-w-0 flex-1 basis-[200px] font-semibold hover:underline">
+                  {product.name}
+                </Link>
+                <span>
+                  {offer.shop} · {formatRand(offer.priceZar)} · <span className="text-mute">checked {offer.checkedOn}</span>
+                </span>
+                {offer.url && (
+                  <a href={offer.url} target="_blank" rel="noopener nofollow" className="text-acc underline">
+                    Shop’s page<span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                )}
+                <Link href={`/product/${product.id}/edit`} className="text-acc underline">
+                  ✎ Update
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {stale.length > 30 && <p className="mb-6 text-sm text-mute">…and {stale.length - 30} more.</p>}
+        </>
+      )}
+
+      <h2 className="sec-title !text-2xl">All products</h2>
       <ul className="grid gap-2.5">
         {products.map((p) => (
           <li key={p.id} className="flex flex-wrap items-start gap-3 rounded-[4px] border border-line bg-card p-3">
