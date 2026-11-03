@@ -54,8 +54,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           />
           {children}
           <p className="mt-7 text-[13px] text-mute">
-            Early preview with made-up sample products, shops and prices. Links don’t go to
-            real shops yet. Photos from{" "}
+            Prices are checked on the date shown and can change, so always confirm on the shop’s
+            site. Category photos from{" "}
             <a href="https://www.pexels.com" target="_blank" rel="noopener" className="text-acc underline">
               Pexels
             </a>
