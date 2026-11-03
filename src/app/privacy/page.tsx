@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 // Who is responsible for personal information (POPIA "responsible party" and Information Officer).
 // Fill these in before publishing.
-const RESPONSIBLE = "[Owner’s full name or company name]";
+const RESPONSIBLE = "Ulemu Moya";
 const CONTACT_EMAIL = "[privacy contact email]";
 const UPDATED = "3 November 2026";
 
