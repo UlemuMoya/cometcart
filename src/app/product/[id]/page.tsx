@@ -74,6 +74,9 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
 
   const offers = product.offers; // already cheapest first
   const several = offers.length > 1;
+  const cheapest = offers[0].priceZar;
+  // Only mark a "lowest" price when some shop really charges more.
+  const priceDiffers = offers.at(-1)!.priceZar > cheapest;
 
   // Product and price details in the format search engines read (schema.org), only for
   // Discover products, and only with the real prices, shops and dates shown on the page.
@@ -143,12 +146,10 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           {product.name}
         </h1>
         <p className="text-[19px] font-bold">
-          {formatRand(offers[0].priceZar)}
-          {offers.at(-1)!.priceZar > offers[0].priceZar && (
-            <span className="font-semibold text-mute"> – {formatRand(offers.at(-1)!.priceZar)}</span>
-          )}
+          {formatRand(cheapest)}
+          {priceDiffers && <span className="font-semibold text-mute"> – {formatRand(offers.at(-1)!.priceZar)}</span>}
           <span className="ml-2 text-sm font-normal text-mute">
-            {offers.length} shop{several ? "s" : ""}
+            {several && !priceDiffers ? `same price at all ${offers.length} shops` : `${offers.length} shop${several ? "s" : ""}`}
           </span>
         </p>
 
@@ -164,7 +165,7 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             </tr>
           </thead>
           <tbody>
-            {offers.map((o, i) => (
+            {offers.map((o) => (
               <tr key={o.id ?? o.shop}>
                 <td className="border-b border-line py-3 pr-2">
                   {o.shop}
@@ -173,9 +174,9 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
                     {isStale(o.checkedAt) && <span className="text-[#fcd34d]"> · may have changed</span>}
                   </div>
                 </td>
-                <td className={`border-b border-line px-2 py-3 ${i === 0 && several ? "font-semibold text-warm" : ""}`}>
+                <td className={`border-b border-line px-2 py-3 ${priceDiffers && o.priceZar === cheapest ? "font-semibold text-warm" : ""}`}>
                   {formatRand(o.priceZar)}
-                  {i === 0 && several && <span className="block text-xs">lowest</span>}
+                  {priceDiffers && o.priceZar === cheapest && <span className="block text-xs">lowest</span>}
                 </td>
                 <td className="border-b border-line py-3 pl-2 text-right">
                   {o.url ? (
@@ -226,9 +227,9 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             <ShareButtons
               url={`https://www.cometcart.co.za/product/${product.id}`}
               title={product.name}
-              text={`${product.name}: ${formatRand(offers[0].priceZar)}${
-                several ? ` – ${formatRand(offers.at(-1)!.priceZar)} at ${offers.length} shops` : ` at ${offers[0].shop}`
-              } on Cometcart.`}
+              text={`${product.name}: ${formatRand(cheapest)}${
+                priceDiffers ? ` – ${formatRand(offers.at(-1)!.priceZar)}` : ""
+              }${several ? ` at ${offers.length} shops` : ` at ${offers[0].shop}`} on Cometcart.`}
             />
           </div>
         )}

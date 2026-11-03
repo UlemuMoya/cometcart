@@ -101,7 +101,7 @@ export default function Home(props: PageProps<"/">) {
 const FEATURES: { title: string; text: string; href?: string }[] = [
   {
     title: "Search in plain words",
-    text: "Type it the way you’d say it, like “air fryer under R1500”, and Cometcart keeps to your budget.",
+    text: "Type a product, a category or a budget, like “air fryer”, “shoes” or “headphones under R1000”.",
     href: "/discover",
   },
   {

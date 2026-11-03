@@ -28,7 +28,7 @@ export async function generateMetadata(props: PageProps<"/discover">): Promise<M
   };
 }
 
-const EXAMPLES = ["air fryer under R1500", "wireless headphones", "55-inch TV"];
+const EXAMPLES = ["air fryer", "shoes", "headphones under R1000", "55-inch TV"];
 
 const PRICE_RANGES: { label: string; min: number | null; max: number | null }[] = [
   { label: "Any price", min: null, max: null },
@@ -71,7 +71,7 @@ function amount(value: string | string[] | undefined): number | null {
 }
 
 function describeRange({ min, max }: PriceRange) {
-  if (min != null && max != null) return `${formatRand(min)} – ${formatRand(max)}`;
+  if (min != null && max != null) return `from ${formatRand(min)} to ${formatRand(max)}`;
   if (max != null) return `under ${formatRand(max)}`;
   if (min != null) return `over ${formatRand(min)}`;
   return "";
@@ -88,7 +88,7 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
   };
 
   const [catalogue, savedIds] = await Promise.all([getCatalogue(), getSavedIds()]);
-  const { query, range, results, overBudget } = searchProducts(catalogue, f.q, f.cat, {
+  const { query, range, results, overBudget, related, category, categoryTyped } = searchProducts(catalogue, f.q, f.cat, {
     min: f.min,
     max: f.max,
   });
@@ -100,12 +100,17 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
 
   const what = [query.words.length ? `“${query.words.join(" ")}”` : "", describeRange(range)]
     .filter(Boolean)
-    .join(", ");
+    .join(" ");
 
   let status = "";
-  if (overBudget) status = `Nothing ${what}. Closest options, over your budget:`;
+  const sameCategory = results.every((p) => p.category === results[0]?.category);
+  if (overBudget) status = `Nothing ${query.words.length ? "for " : ""}${what}. Closest options, over your budget:`;
+  else if (related)
+    status = `No exact match for ${what}${category ? ` in ${category}` : ""} yet. ${
+      sameCategory ? `Closest in ${results[0].category}:` : "Closest options:"
+    }`;
   else if (results.length)
-    status = `${results.length} result${results.length > 1 ? "s" : ""}${what ? ` for ${what}` : ""}${f.cat ? ` in ${f.cat}` : ""}`;
+    status = `${results.length} result${results.length > 1 ? "s" : ""}${what ? ` ${query.words.length ? "for " : ""}${what}` : ""}${category ? ` in ${category}` : ""}`;
 
   const chip = (current: boolean) =>
     `block whitespace-nowrap rounded-[3px] border px-3.5 py-[7px] text-sm ${
@@ -209,9 +214,9 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
           {[null, ...CATEGORIES].map((c) => (
             <li key={c ?? "All"} className="flex-none">
               <Link
-                href={href({ ...f, cat: c })}
-                aria-current={c === f.cat ? "page" : undefined}
-                className={chip(c === f.cat)}
+                href={href({ ...f, q: categoryTyped ? "" : f.q, cat: c })}
+                aria-current={c === category ? "page" : undefined}
+                className={chip(c === category)}
               >
                 {c ?? "All"}
               </Link>
@@ -262,7 +267,7 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
               <p className="px-2 pb-6 pt-4 text-mute">
                 {catalogue.length === 0
                   ? "No products yet. Be the first to add one you’ve found."
-                  : `No match for ${what || "that"}${f.cat ? ` in ${f.cat}` : ""} yet. Cometcart is new and growing. Try another word or price range, or paste a link from any shop to save it.`}{" "}
+                  : `No match for ${what || "that"}${category ? ` in ${category}` : ""} yet. Cometcart is new and growing. Try another word or price range, or paste a link from any shop to save it.`}{" "}
                 <Link href="/add" className="text-acc underline">
                   Paste a link
                 </Link>

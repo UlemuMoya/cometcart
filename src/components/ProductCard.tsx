@@ -54,8 +54,9 @@ export function ProductCard({ product, badge, saved }: Props) {
           {highest > best.priceZar && <span className="font-semibold text-mute"> – {formatRand(highest)}</span>}
         </span>
         <span className="text-xs text-mute">
-          {shops > 1 ? "Lowest at " : "At "}
-          {best.shop} · checked {best.checkedOn}
+          {shops > 1 && highest === best.priceZar ? "Same price at every shop" : `${shops > 1 ? "Lowest at" : "At"} ${best.shop}`}
+          {" · checked "}
+          {best.checkedOn}
           {isStale(best.checkedAt) && <span className="text-[#fcd34d]"> · may have changed</span>}
         </span>
         <div className="mt-auto flex flex-wrap gap-2 pt-2">
