@@ -46,11 +46,6 @@ async function Registries() {
   const registries = await getMyRegistries();
   return (
     <>
-      <p className="mb-4 text-sm">
-        <Link href="/wishlist" className="text-acc underline">
-          ← Your wishlist
-        </Link>
-      </p>
       {registries.length > 0 && (
         <>
           <h2 className="sec-title !mt-0 !text-2xl">Your registries</h2>

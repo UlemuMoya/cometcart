@@ -127,14 +127,6 @@ async function Registry({ params }: Pick<PageProps<"/registry/[id]">, "params">)
         </ul>
       )}
 
-      <h2 className="sec-title !text-2xl">Registry link</h2>
-      <input
-        readOnly
-        value={shareUrl}
-        aria-label="Registry link"
-        className="w-full min-w-0 max-w-[560px] rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink"
-      />
-
       <h2 className="sec-title !text-2xl">Details</h2>
       <RegistryDetailsForm
         registry={{

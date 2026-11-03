@@ -24,14 +24,6 @@ export default function WishlistPage() {
         title="Your wishlist"
         intro="Products from any shop, in one place: ones you’ve saved from Discover and ones you’ve added from shop links."
       />
-      <p className="-mt-2 mb-5">
-        <Link
-          href="/registry"
-          className="inline-block rounded-[3px] border border-line px-4 py-2 text-sm font-semibold hover:border-mute"
-        >
-          🎁 Gift registries: weddings, babies, birthdays and new homes
-        </Link>
-      </p>
       <Suspense fallback={<p className="text-mute">Loading your wishlist…</p>}>
         <MyWishlist />
       </Suspense>
@@ -115,23 +107,20 @@ async function MyWishlist() {
       </div>
       <ItemGrid items={items} />
 
-      <h2 className="sec-title">Share link</h2>
-      <input
-        readOnly
-        value={shareUrl}
-        aria-label="Share link"
-        className="w-full min-w-0 max-w-[560px] rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink"
-      />
-      <form action={newShareLink} className="mt-3">
-        <input type="hidden" name="wishlistId" value={list.id} />
-        <button type="submit" className="text-sm text-acc underline">
-          Stop old links working (make a new link)
-        </button>
-      </form>
-
       <h2 className="sec-title">Settings</h2>
       <div className="grid gap-6">
         <RenameForm wishlistId={list.id} name={list.name} />
+
+        <form action={newShareLink} className="grid max-w-[560px] gap-2">
+          <input type="hidden" name="wishlistId" value={list.id} />
+          <p>
+            <strong>Share link.</strong>{" "}
+            <span className="text-mute">Sent it to someone by mistake? Make a new link and the old one stops working.</span>
+          </p>
+          <button type="submit" className={`${ghostClass} w-fit`}>
+            Make a new link
+          </button>
+        </form>
 
         <form action={setPublic} className="grid max-w-[560px] gap-2">
           <input type="hidden" name="wishlistId" value={list.id} />

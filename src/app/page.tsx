@@ -8,6 +8,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { INSPIRATION } from "@/data/inspiration";
 import { getCatalogue, getMyFinds, getProducts, getTrending } from "@/lib/catalogue";
 import type { Product } from "@/lib/types";
+import { getMyRegistries } from "@/lib/registry";
 import { getMyWishlist } from "@/lib/wishlist";
 import type { Metadata } from "next";
 
@@ -201,22 +202,42 @@ async function Collections() {
     );
 
   // Same as the Wishlist page: products added from shop links, then ones saved from Discover.
-  const [saved, finds] = await Promise.all([getProducts(wishlist?.productIds ?? []), getMyFinds()]);
+  const [saved, finds, registries] = await Promise.all([
+    getProducts(wishlist?.productIds ?? []),
+    getMyFinds(),
+    getMyRegistries(),
+  ]);
   const items = [...finds, ...saved.filter((p) => p.listed)];
   return (
-    <div className={boxClass}>
-      <div>
-        <strong>{wishlist?.name ?? "My wishlist"}</strong>
-        <div className="text-sm text-mute">{items.length} saved</div>
+    <div className="grid gap-2.5">
+      <div className={boxClass}>
+        <div>
+          <strong>{wishlist?.name ?? "My wishlist"}</strong>
+          <div className="text-sm text-mute">{items.length} saved</div>
+        </div>
+        {items.length ? (
+          <Thumbs products={items} />
+        ) : (
+          <span className="text-[15px] text-mute">Save something and it appears here</span>
+        )}
+        <Link href="/wishlist" className={openClass}>
+          Open<span className="sr-only"> your wishlist</span>
+        </Link>
       </div>
-      {items.length ? (
-        <Thumbs products={items} />
-      ) : (
-        <span className="text-[15px] text-mute">Save something and it appears here</span>
-      )}
-      <Link href="/wishlist" className={openClass}>
-        Open<span className="sr-only"> your wishlist</span>
-      </Link>
+      <div className={boxClass}>
+        <div>
+          <strong>🎁 Gift registries</strong>
+          <div className="text-sm text-mute">
+            {registries.length
+              ? registries.map((r) => r.name).slice(0, 2).join(", ") + (registries.length > 2 ? ` and ${registries.length - 2} more` : "")
+              : "For a wedding, baby, birthday or new home"}
+          </div>
+        </div>
+        <Link href="/registry" className={openClass}>
+          {registries.length ? "Open" : "Create one"}
+          <span className="sr-only"> gift registries</span>
+        </Link>
+      </div>
     </div>
   );
 }

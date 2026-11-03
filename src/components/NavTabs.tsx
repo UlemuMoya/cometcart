@@ -7,13 +7,15 @@ const TABS = [
   { href: "/", label: "Home" },
   { href: "/discover", label: "Discover" },
   { href: "/wishlist", label: "Wishlist" },
+  { href: "/registry", label: "Registries" },
   { href: "/add", label: "Paste a link" },
 ];
 
 /** The main tabs. `current` is the highlighted tab, or null while it's unknown. */
 export function Tabs({ current }: { current: string | null }) {
   return TABS.map((tab) => {
-    const isCurrent = current === tab.href;
+    // Also highlight the tab on its inner pages, e.g. Registries on /registry/123.
+    const isCurrent = current === tab.href || (tab.href !== "/" && !!current?.startsWith(`${tab.href}/`));
     return (
       <li key={tab.href}>
         <Link
