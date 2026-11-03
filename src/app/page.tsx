@@ -21,8 +21,8 @@ export default function Home(props: PageProps<"/">) {
           Find anything. Compare every price. Save what you love.
         </h1>
         <p className="text-[#dcd6ff]">
-          Search in your own words, compare prices from South African shops side by side, and keep
-          a wishlist you can share.
+          Search any product in your own words, compare prices from South African shops side by
+          side, and keep a wishlist you can share.
         </p>
       </section>
 

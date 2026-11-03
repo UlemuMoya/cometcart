@@ -5,7 +5,7 @@ type Props = {
 
 // A plain form: works without JavaScript and sends people to Discover with ?q=
 export function SearchBar({
-  placeholder = "Search anything, in your own words",
+  placeholder = "Search any product in your own words",
   defaultValue,
 }: Props) {
   return (
@@ -15,7 +15,7 @@ export function SearchBar({
         name="q"
         defaultValue={defaultValue}
         placeholder={placeholder}
-        aria-label="Search"
+        aria-label="Search for a product"
         className="min-w-0 flex-1 rounded-[3px] border border-line bg-card px-4 py-[13px] placeholder:text-mute"
       />
       <button type="submit" className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold">
