@@ -71,8 +71,10 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           {product.name}
         </h1>
         <p className="text-[19px] font-bold">
-          {several ? "from " : ""}
           {formatRand(offers[0].priceZar)}
+          {offers.at(-1)!.priceZar > offers[0].priceZar && (
+            <span className="font-semibold text-mute"> – {formatRand(offers.at(-1)!.priceZar)}</span>
+          )}
           <span className="ml-2 text-sm font-normal text-mute">
             {offers.length} shop{several ? "s" : ""}
           </span>

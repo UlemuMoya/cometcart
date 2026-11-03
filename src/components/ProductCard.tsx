@@ -15,6 +15,7 @@ type Props = {
 export function ProductCard({ product, badge, saved }: Props) {
   const best = lowestOffer(product.offers);
   const shops = product.offers.length;
+  const highest = Math.max(...product.offers.map((o) => o.priceZar));
   // Added by the visitor from a shop link: it lives only in their wishlist.
   const ownFind = product.listed === false;
   badge ??= ownFind ? "Only you can see this" : undefined;
@@ -46,12 +47,14 @@ export function ProductCard({ product, badge, saved }: Props) {
         <span className="text-sm text-mute">
           {product.category} · {shops} shop{shops > 1 ? "s" : ""}
         </span>
+        {/* Lowest to highest across shops, so the comparison shows at a glance. */}
         <span className="text-[19px] font-bold">
-          {shops > 1 ? "from " : ""}
           {formatRand(best.priceZar)}
+          {highest > best.priceZar && <span className="font-semibold text-mute"> – {formatRand(highest)}</span>}
         </span>
         <span className="text-xs text-mute">
-          at {best.shop} · checked {best.checkedOn}
+          {shops > 1 ? "Lowest at " : "At "}
+          {best.shop} · checked {best.checkedOn}
         </span>
         <div className="mt-auto flex flex-wrap gap-2 pt-2">
           <Link
