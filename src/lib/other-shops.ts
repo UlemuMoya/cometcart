@@ -12,7 +12,7 @@ const SHOPS = {
   makro: { name: "Makro", search: (s) => `https://www.makro.co.za/search?q=${q(s)}` },
   woolworths: { name: "Woolworths", search: (s) => `https://www.woolworths.co.za/browse?searchterm=${q(s)}` },
   superbalist: { name: "Superbalist", search: (s) => `https://superbalist.com/search?q=${q(s)}` },
-  mrphome: { name: "Mr Price Home", search: (s) => `https://www.mrphome.com/en_za/catalogsearch/result/?q=${q(s)}` },
+  mrphome: { name: "Mr Price Home", search: (s) => `https://www.mrphome.com/en_za/search?q=${q(s)}` },
   clicks: { name: "Clicks", search: (s) => `https://clicks.co.za/search?text=${q(s)}` },
   dischem: { name: "Dis-Chem", search: (s) => `https://www.dischem.co.za/catalogsearch/result/?q=${q(s)}` },
   incredible: { name: "Incredible", search: (s) => `https://www.incredible.co.za/catalogsearch/result/?q=${q(s)}` },
