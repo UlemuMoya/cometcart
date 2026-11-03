@@ -7,9 +7,8 @@ export const metadata: Metadata = {
 };
 
 // Who is responsible for personal information (POPIA "responsible party" and Information Officer).
-// Fill these in before publishing.
 const RESPONSIBLE = "Ulemu Moya";
-const CONTACT_EMAIL = "[privacy contact email]";
+const CONTACT_EMAIL = "cometcartonline@gmail.com";
 const UPDATED = "3 November 2026";
 
 const h2 = "sec-title !text-2xl";
@@ -31,7 +30,11 @@ export default function PrivacyPage() {
       <h2 className={h2}>Who is responsible</h2>
       <p className={p}>
         Cometcart is run by {RESPONSIBLE}, the “responsible party” for your personal information. Our Information
-        Officer can be reached at <strong>{CONTACT_EMAIL}</strong>.
+        Officer can be reached at{" "}
+        <a href={`mailto:${CONTACT_EMAIL}`} className="text-acc underline">
+          {CONTACT_EMAIL}
+        </a>
+        .
       </p>
 
       <h2 className={h2}>What we keep</h2>
@@ -147,7 +150,11 @@ export default function PrivacyPage() {
         </li>
       </ul>
       <p className={p}>
-        For anything on this page, email <strong>{CONTACT_EMAIL}</strong>. We’ll reply as soon as we can, and within
+        For anything on this page, email{" "}
+        <a href={`mailto:${CONTACT_EMAIL}`} className="text-acc underline">
+          {CONTACT_EMAIL}
+        </a>
+        . We’ll reply as soon as we can, and within
         30 days.
       </p>
 
