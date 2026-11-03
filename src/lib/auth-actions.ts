@@ -23,6 +23,8 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
   const password = String(form.get("password") ?? "");
   if (!email || !password) return { error: "Please enter your email and a password." };
   if (password.length < 8) return { error: "Please use a password of at least 8 characters." };
+  // POPIA: sign-up needs the person's informed consent.
+  if (form.get("consent") !== "on") return { error: "Please confirm you’re 18 or older and agree to the privacy policy." };
 
   const origin = (await headers()).get("origin") ?? "";
   const supabase = await createClient();

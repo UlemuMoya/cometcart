@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Allura, Cormorant_Garamond, DM_Sans } from "next/font/google";
+import Link from "next/link";
 import { Suspense } from "react";
 import { AccountLink, AccountLinkFallback } from "@/components/AccountLink";
 import { AssistantButton } from "@/components/AssistantButton";
@@ -54,7 +55,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
           <p className="mt-7 text-[13px] text-mute">
             Early preview with made-up sample products, shops and prices. Links don’t go to
-            real shops yet.
+            real shops yet.{" "}
+            <Link href="/privacy" className="text-acc underline">
+              Privacy policy
+            </Link>
           </p>
         </main>
         <AssistantButton />

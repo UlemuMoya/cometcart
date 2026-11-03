@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import {
   deleteAccount,
@@ -80,6 +81,16 @@ export function SignUpForm() {
           required
           className={inputClass}
         />
+      </label>
+      <label className="flex items-start gap-2 text-sm text-mute">
+        <input name="consent" type="checkbox" required className="mt-1" />
+        <span>
+          I’m 18 or older, and I agree to Cometcart keeping my information as set out in the{" "}
+          <Link href="/privacy" target="_blank" className="text-acc underline">
+            privacy policy
+          </Link>
+          .
+        </span>
       </label>
       <Status state={state} />
       <button type="submit" disabled={pending} className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60">
