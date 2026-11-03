@@ -28,6 +28,24 @@ export default function Home(props: PageProps<"/">) {
 
       <SearchBar />
 
+      <h2 className="sec-title">What you can do</h2>
+      <ul className="grid gap-2.5 min-[561px]:grid-cols-2 md:grid-cols-3">
+        {FEATURES.map((f) => (
+          <li key={f.title} className="rounded-[4px] border border-line bg-card px-4 py-3.5">
+            <h3 className="mb-1 font-semibold">
+              {f.href ? (
+                <Link href={f.href} className="hover:underline">
+                  {f.title}
+                </Link>
+              ) : (
+                f.title
+              )}
+            </h3>
+            <p className="text-[15px] text-mute">{f.text}</p>
+          </li>
+        ))}
+      </ul>
+
       <h2 className="sec-title">Inspiration</h2>
       <ul className="grid grid-cols-2 gap-2.5 min-[561px]:grid-cols-4">
         {INSPIRATION.map((tile) => (
@@ -74,6 +92,39 @@ export default function Home(props: PageProps<"/">) {
     </>
   );
 }
+
+// What Cometcart does, for first-time visitors.
+const FEATURES: { title: string; text: string; href?: string }[] = [
+  {
+    title: "Search in plain words",
+    text: "Type it the way you’d say it, like “air fryer under R1500”. Cometcart understands budgets.",
+    href: "/discover",
+  },
+  {
+    title: "Compare prices",
+    text: "See the same product at different shops, cheapest first, each with the date the price was checked.",
+    href: "/discover",
+  },
+  {
+    title: "Save to your wishlist",
+    text: "Tap ♡ Save on anything you like. Make it public or private, rename it, or delete it.",
+    href: "/wishlist",
+  },
+  {
+    title: "Share by link",
+    text: "Send your wishlist on WhatsApp or email. People can see it but can’t change it.",
+    href: "/wishlist",
+  },
+  {
+    title: "Paste a link from any shop",
+    text: "Found something elsewhere? Paste its link to save it, or to add that shop’s price to a comparison.",
+    href: "/add",
+  },
+  {
+    title: "Use it like an app",
+    text: "Add Cometcart to your phone’s home screen. On iPhone, use Safari: Share, then Add to Home Screen.",
+  },
+];
 
 async function AccountDeleted({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
   const { account } = await searchParams;
