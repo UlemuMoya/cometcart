@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { PageIntro } from "@/components/PageIntro";
 import { ProductCard } from "@/components/ProductCard";
-import { getCatalogue } from "@/lib/catalogue";
+import { getCatalogue, getTrending } from "@/lib/catalogue";
 import { CATEGORIES } from "@/lib/categories";
 import { formatRand } from "@/lib/format";
 import { searchProducts, type PriceRange } from "@/lib/search";
@@ -78,6 +78,11 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
     min: f.min,
     max: f.max,
   });
+
+  // Shown when nothing matches: the most saved and visited, topped up with the newest.
+  const popular = results.length
+    ? []
+    : [...(await getTrending(catalogue)), ...catalogue].filter((p, i, all) => all.indexOf(p) === i).slice(0, 4);
 
   const what = [query.words.length ? `“${query.words.join(" ")}”` : "", describeRange(range)]
     .filter(Boolean)
@@ -161,8 +166,16 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
           defaultValue={f.q}
           placeholder="Try: air fryer under R1500"
           aria-label="Search products"
+          list="discover-search-suggestions"
+          autoComplete="off"
           className="min-w-0 flex-1 rounded-[3px] border border-line bg-card px-4 py-[13px] placeholder:text-mute"
         />
+        {/* Suggested as people type: categories and the products actually in Discover. */}
+        <datalist id="discover-search-suggestions">
+          {[...new Set([...CATEGORIES, ...catalogue.map((p) => p.name)])].map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
         <button type="submit" className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold">
           Search
         </button>
@@ -231,14 +244,27 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
               ))}
             </div>
           ) : (
-            <p className="px-2 py-9 text-mute">
-              {catalogue.length === 0
-                ? "No products yet. Be the first to add one you’ve found."
-                : `No match for ${what || "that"}${f.cat ? ` in ${f.cat}` : ""}. Try another word or a different price range.`}{" "}
-              <Link href="/add" className="text-acc underline">
-                Paste a link
-              </Link>
-            </p>
+            <>
+              <p className="px-2 pb-6 pt-4 text-mute">
+                {catalogue.length === 0
+                  ? "No products yet. Be the first to add one you’ve found."
+                  : `No match for ${what || "that"}${f.cat ? ` in ${f.cat}` : ""} yet. Cometcart is new and growing. Try another word or price range, or paste a link from any shop to save it.`}{" "}
+                <Link href="/add" className="text-acc underline">
+                  Paste a link
+                </Link>
+              </p>
+              {/* So a search that finds nothing isn't a dead end. */}
+              {popular.length > 0 && (
+                <>
+                  <h2 className="mb-3 font-display text-2xl font-semibold">Popular in Discover</h2>
+                  <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3.5">
+                    {popular.map((p) => (
+                      <ProductCard key={p.id} product={p} saved={savedIds?.has(p.id) ?? false} />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           )}
         </div>
       </div>
