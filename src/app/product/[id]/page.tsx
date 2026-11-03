@@ -14,6 +14,8 @@ import { formatRand, isStale } from "@/lib/format";
 import { otherShopLinks } from "@/lib/other-shops";
 import { setListed } from "@/lib/product-actions";
 import { getCurrentUser, isOwner } from "@/lib/supabase/server";
+import { AddToRegistryForm } from "@/components/RegistryForms";
+import { getMyRegistries } from "@/lib/registry";
 import { getSavedIds } from "@/lib/wishlist";
 
 // The title and preview shown when a product link is shared, e.g. on WhatsApp.
@@ -63,6 +65,7 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const owner = !!user && product.listed === true && (await isOwner(user.id));
   const canChangePhoto = owner || (!!user && !product.listed && product.addedBy === user.id);
   const canEdit = canChangePhoto || (!!user && product.offers.some((o) => o.addedBy === user.id));
+  const registries = user ? await getMyRegistries() : [];
   // Only while a product has a single shop, to help find a second price; after that the leftover
   // suggestions are usually shops that don't sell the product.
   const elsewhere =
@@ -223,6 +226,21 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
               ✎ Edit name, category, photo or your prices
             </Link>
           </p>
+        )}
+
+        {user && (
+          <div className="mt-3">
+            {registries.length ? (
+              <AddToRegistryForm productId={product.id} registries={registries.map((r) => ({ id: r.id, name: r.name }))} />
+            ) : (
+              <p className="text-sm text-mute">
+                🎁 Planning a wedding, baby shower or birthday?{" "}
+                <Link href="/registry" className="text-acc underline">
+                  Create a gift registry
+                </Link>
+              </p>
+            )}
+          </div>
         )}
 
         {elsewhere.length > 0 && (

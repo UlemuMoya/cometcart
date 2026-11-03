@@ -28,6 +28,7 @@ export async function getMyWishlist(): Promise<Wishlist | null | undefined> {
     .from("wishlists")
     .select("id, name, is_public, share_code, wishlist_items (product_id, saved_at)")
     .eq("owner_id", user.id)
+    .eq("kind", "wishlist") // gift registries are separate lists
     .order("created_at")
     .limit(1)
     .maybeSingle();

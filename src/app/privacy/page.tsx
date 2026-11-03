@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 // Who is responsible for personal information (POPIA "responsible party" and Information Officer).
 const RESPONSIBLE = "Ulemu Moya";
 const CONTACT_EMAIL = "cometcartonline@gmail.com";
-const UPDATED = "3 November 2026";
+const UPDATED = "4 November 2026";
 
 const h2 = "sec-title !text-2xl";
 const p = "mb-3 max-w-[720px] text-[#dcd6ff]";
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
           <strong>Your profile, if you fill it in:</strong> your name, sizes, budget and style. All optional.
         </li>
         <li>
-          <strong>Your wishlist:</strong> the products you save, its name, and whether it’s public or private.
+          <strong>Your wishlist and gift registries:</strong> the products you save, their names, whether they’re public or private, and for registries the occasion, date and note you add.
         </li>
         <li>
           <strong>Products and prices you add:</strong> the shop link, shop name, price, product name, category,
@@ -99,6 +99,15 @@ export default function PrivacyPage() {
           Shop prices you add to a Discover product are visible to everyone, without your name.
         </li>
       </ul>
+
+      <h2 className={h2}>Gift registries</h2>
+      <p className={p}>
+        A registry works like a wishlist you share for an occasion. Anyone with its link can see the gifts and prices.
+        When a guest taps “I’ll get this”, we keep the first name they type, so the gift shows as taken and nobody
+        doubles up. We never show guests who reserved what. The registry owner only sees guests’ names if they switch
+        off surprise mode. A small code saved in the guest’s own browser lets them undo their choice. Reservations are
+        deleted when the gift or the registry is removed.
+      </p>
 
       <h2 className={h2}>Shops that list with us</h2>
       <p className={p}>

@@ -23,6 +23,14 @@ export default function WishlistPage() {
         title="Your wishlist"
         intro="Products from any shop, in one place: ones you’ve saved from Discover and ones you’ve added from shop links."
       />
+      <p className="-mt-2 mb-5">
+        <Link
+          href="/registry"
+          className="inline-block rounded-[3px] border border-line px-4 py-2 text-sm font-semibold hover:border-mute"
+        >
+          🎁 Gift registries: weddings, babies, birthdays and new homes
+        </Link>
+      </p>
       <Suspense fallback={<p className="text-mute">Loading your wishlist…</p>}>
         <MyWishlist />
       </Suspense>

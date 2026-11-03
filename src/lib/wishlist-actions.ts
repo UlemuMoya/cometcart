@@ -26,6 +26,7 @@ export async function toggleSave(productId: string): Promise<{ saved: boolean } 
     .from("wishlists")
     .select("id")
     .eq("owner_id", user.id)
+    .eq("kind", "wishlist") // saves go to the everyday wishlist, not a registry
     .order("created_at")
     .limit(1)
     .maybeSingle();
