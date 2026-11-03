@@ -28,7 +28,9 @@ export const metadata: Metadata = {
   title: "Cometcart",
   description: "Find anything. Compare every price. Save what you love.",
   applicationName: "Cometcart",
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  // iPhones need a PNG for the home-screen icon.
+  icons: { icon: "/icon.svg", apple: { url: "/app-icon/180", sizes: "180x180", type: "image/png" } },
+  appleWebApp: { capable: true, title: "Cometcart", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {
