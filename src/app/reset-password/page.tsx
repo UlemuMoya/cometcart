@@ -3,6 +3,9 @@ import { Suspense } from "react";
 import { NewPasswordForm } from "@/components/AuthForms";
 import { PageIntro } from "@/components/PageIntro";
 import { getCurrentUser } from "@/lib/supabase/server";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Choose a new password", robots: { index: false, follow: false } };
 
 // The reset link in the email signs the person in, then brings them here.
 export default function ResetPasswordPage() {

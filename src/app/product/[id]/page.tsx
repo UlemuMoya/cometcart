@@ -20,7 +20,8 @@ import { getSavedIds } from "@/lib/wishlist";
 export async function generateMetadata(props: PageProps<"/product/[id]">): Promise<Metadata> {
   const { id } = await props.params;
   const product = UUID.test(id) ? await getProduct(id) : null;
-  if (!product || product.offers.length === 0) return { title: "Product not found" };
+  if (!product || product.offers.length === 0)
+    return { title: "Product not found", robots: { index: false, follow: false } };
   const low = product.offers[0].priceZar;
   const high = product.offers.at(-1)!.priceZar;
   const shops = product.offers.length;
@@ -30,6 +31,7 @@ export async function generateMetadata(props: PageProps<"/product/[id]">): Promi
   return {
     title: product.name,
     description,
+    alternates: { canonical: `/product/${product.id}` },
     openGraph: {
       title: product.name,
       description,
@@ -66,8 +68,44 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const offers = product.offers; // already cheapest first
   const several = offers.length > 1;
 
+  // Product and price details in the format search engines read (schema.org), only for
+  // Discover products, and only with the real prices, shops and dates shown on the page.
+  const structuredData = product.listed
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        category: product.category,
+        url: `https://www.cometcart.co.za/product/${product.id}`,
+        ...(product.image && isOwnPhoto(product.image)
+          ? { image: product.image.startsWith("/") ? `https://www.cometcart.co.za${product.image}` : product.image }
+          : {}),
+        offers: {
+          "@type": "AggregateOffer",
+          priceCurrency: "ZAR",
+          lowPrice: offers[0].priceZar.toFixed(2),
+          highPrice: offers.at(-1)!.priceZar.toFixed(2),
+          offerCount: offers.length,
+          offers: offers.map((o) => ({
+            "@type": "Offer",
+            price: o.priceZar.toFixed(2),
+            priceCurrency: "ZAR",
+            seller: { "@type": "Organization", name: o.shop },
+            ...(o.url ? { url: o.url } : {}),
+          })),
+        },
+      }
+    : null;
+
   return (
     <article className="mt-[26px] grid gap-6 md:grid-cols-[minmax(0,420px)_1fr]">
+      {structuredData && (
+        <script
+          type="application/ld+json"
+          // Escape "<" so product names can't break out of the script tag.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
+        />
+      )}
       <div className="relative aspect-[4/3] overflow-hidden rounded-[4px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]">
         {product.image ? (
           <Image

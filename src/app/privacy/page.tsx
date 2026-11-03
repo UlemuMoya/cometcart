@@ -4,6 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Privacy policy",
   description: "What personal information Cometcart keeps, why, and your rights under POPIA.",
+  alternates: { canonical: "/privacy" },
 };
 
 // Who is responsible for personal information (POPIA "responsible party" and Information Officer).

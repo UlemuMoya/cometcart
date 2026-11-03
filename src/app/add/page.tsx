@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Paste a link",
   description: "Paste a product link from any shop to compare its price or save it to your wishlist.",
+  robots: { index: false, follow: true },
 };
 
 export default function AddProductPage(props: PageProps<"/add">) {

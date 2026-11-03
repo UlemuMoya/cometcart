@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ForgotPasswordForm } from "@/components/AuthForms";
 import { PageIntro } from "@/components/PageIntro";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Forgot your password?", robots: { index: false, follow: false } };
 
 export default function ForgotPasswordPage(props: PageProps<"/forgot-password">) {
   return (

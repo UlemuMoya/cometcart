@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Create an account",
   description: "Create a free Cometcart account to save products and share your wishlist.",
+  alternates: { canonical: "/sign-up" },
 };
 
 export default function SignUpPage() {

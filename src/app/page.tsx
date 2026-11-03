@@ -9,6 +9,9 @@ import { INSPIRATION } from "@/data/inspiration";
 import { getCatalogue, getMyFinds, getProducts, getTrending } from "@/lib/catalogue";
 import type { Product } from "@/lib/types";
 import { getMyWishlist } from "@/lib/wishlist";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default function Home(props: PageProps<"/">) {
   return (

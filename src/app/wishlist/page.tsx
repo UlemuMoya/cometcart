@@ -13,6 +13,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Your wishlist",
   description: "Products from any shop, in one place, with a link you can share.",
+  robots: { index: false, follow: true },
 };
 
 export default function WishlistPage() {

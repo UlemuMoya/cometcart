@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Your account",
   description: "Your Cometcart profile and settings.",
+  robots: { index: false, follow: true },
 };
 
 export default function AccountPage(props: PageProps<"/account">) {

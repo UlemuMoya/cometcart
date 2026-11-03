@@ -5,6 +5,7 @@ import { ShopApplyForm } from "@/components/ShopForms";
 export const metadata: Metadata = {
   title: "List your shop",
   description: "Show your products and prices to South African shoppers comparing prices on Cometcart.",
+  alternates: { canonical: "/list-your-shop" },
 };
 
 const p = "mb-3 max-w-[640px] text-[#dcd6ff]";

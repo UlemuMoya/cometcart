@@ -9,10 +9,24 @@ import { searchProducts, type PriceRange } from "@/lib/search";
 import { getSavedIds } from "@/lib/wishlist";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Discover",
-  description: "Search in your own words and compare prices for the same product at different South African shops.",
-};
+// Each category gets its own title and address for search engines. Search results and
+// price filters are kept out of search engines (thin, endless variations of the same page).
+export async function generateMetadata(props: PageProps<"/discover">): Promise<Metadata> {
+  const params = await props.searchParams;
+  const cat = typeof params.cat === "string" && (CATEGORIES as readonly string[]).includes(params.cat) ? params.cat : null;
+  const filtered = ["q", "min", "max"].some((k) => typeof params[k] === "string" && params[k] !== "");
+  const title = cat ? `${cat}: compare prices in South Africa` : "Discover";
+  const description = cat
+    ? `Compare ${cat.toLowerCase()} prices at South African shops side by side, cheapest first, each with the date it was checked.`
+    : "Search in your own words and compare prices for the same product at different South African shops.";
+  return {
+    title,
+    description,
+    alternates: { canonical: cat ? `/discover?cat=${encodeURIComponent(cat)}` : "/discover" },
+    openGraph: { title, description },
+    ...(filtered ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 const EXAMPLES = ["air fryer under R1500", "wireless headphones", "55-inch TV"];
 
