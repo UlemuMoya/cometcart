@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CategoryTile } from "@/components/CategoryIcon";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -123,7 +124,9 @@ function Thumbs({ products }: { products: Product[] }) {
         p.image ? (
           <Image key={p.id} src={p.image} unoptimized={!isOwnPhoto(p.image)} alt="" width={40} height={40} className="h-10 w-10 rounded-[3px] object-cover" />
         ) : (
-          <span key={p.id} className="h-10 w-10 rounded-[3px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]" />
+          <span key={p.id} className="grid h-10 w-10 place-items-center rounded-[3px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]">
+            <CategoryTile category={p.category} size="small" />
+          </span>
         ),
       )}
     </span>

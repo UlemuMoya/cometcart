@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CategoryTile } from "@/components/CategoryIcon";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { formatRand, isStale, lowestOffer } from "@/lib/format";
@@ -39,9 +40,7 @@ export function ProductCard({ product, badge, saved }: Props) {
             className="object-cover"
           />
         ) : (
-          <span className="absolute inset-0 grid place-items-center px-4 text-center font-display text-2xl text-white/85">
-            {product.category}
-          </span>
+          <CategoryTile category={product.category} />
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1 px-3.5 pb-3.5 pt-3">

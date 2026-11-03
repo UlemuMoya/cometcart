@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { CategoryTile } from "@/components/CategoryIcon";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -79,9 +80,7 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             className="object-cover"
           />
         ) : (
-          <span className="absolute inset-0 grid place-items-center font-display text-3xl text-white/85">
-            {product.category}
-          </span>
+          <CategoryTile category={product.category} />
         )}
       </div>
 

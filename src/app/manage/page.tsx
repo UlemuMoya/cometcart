@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { CategoryTile } from "@/components/CategoryIcon";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -99,7 +100,9 @@ async function Manage() {
             {p.image ? (
               <Image src={p.image} unoptimized={!isOwnPhoto(p.image)} alt="" width={64} height={64} className="h-16 w-16 flex-none rounded-[3px] object-cover" />
             ) : (
-              <span className="h-16 w-16 flex-none rounded-[3px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]" />
+              <span className="grid h-16 w-16 flex-none place-items-center rounded-[3px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]">
+                <CategoryTile category={p.category} size="small" />
+              </span>
             )}
             <div className="min-w-0 flex-1 basis-[200px]">
               <Link href={p.href ?? "#"} className="font-semibold hover:underline">

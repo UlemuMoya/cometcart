@@ -167,6 +167,15 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
           Search
         </button>
       </form>
+      {/* Until Cometcart's own photo search arrives (step 7). */}
+      <p className="-mt-1 mb-4 text-sm text-mute">
+        <span aria-hidden="true">📷 </span>
+        <strong className="font-semibold text-ink">Have a photo?</strong> Use{" "}
+        <a href="https://lens.google/" target="_blank" rel="noopener" className="text-acc underline">
+          Google Lens<span className="sr-only"> (opens in a new tab)</span>
+        </a>{" "}
+        on your phone to find the product’s name, then search for it here.
+      </p>
 
       <nav aria-label="Categories" className="mb-5">
         <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
