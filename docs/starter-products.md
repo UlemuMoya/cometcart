@@ -7,7 +7,7 @@ These are suggestions only. **Check each one yourself before adding it.** Prices
 ## How to add one (about 2 minutes)
 
 1. Click a shop link below. It opens that shop's own search. Open the product and copy its link from the address bar.
-2. On Cometcart, go to **Add a product**, paste the link, type the price you see, and check the name and category.
+2. On Cometcart, go to **Paste a link**, paste the link, type the price you see, and check the name and category.
 3. Tick **Put it in Discover** (owner only), leave the photo empty, and click **Add to Discover**.
 4. On the new product page, click **+ Add another shop's price**. Paste the same product's link from a second shop, type its price, and click **Add this price**.
 

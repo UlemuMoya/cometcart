@@ -236,7 +236,7 @@ async function Results({ searchParams }: Pick<PageProps<"/discover">, "searchPar
                 ? "No products yet. Be the first to add one you’ve found."
                 : `No match for ${what || "that"}${f.cat ? ` in ${f.cat}` : ""}. Try another word or a different price range.`}{" "}
               <Link href="/add" className="text-acc underline">
-                Add a product
+                Paste a link
               </Link>
             </p>
           )}

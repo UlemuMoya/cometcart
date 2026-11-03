@@ -21,7 +21,7 @@ export default function ManagePage() {
     <section>
       <PageIntro
         title="Manage Discover"
-        intro="Owner only. Every product shoppers see in Discover. To add one, use Add a product and tick “Put it in Discover”."
+        intro="Owner only. Every product shoppers see in Discover. To add one, use Paste a link and tick “Put it in Discover”."
       />
       <Suspense fallback={<p className="text-mute">Loading…</p>}>
         <Manage />
@@ -43,7 +43,7 @@ async function Manage() {
     <>
       <p className="mb-4 flex flex-wrap items-center gap-3">
         <Link href="/add" className="btn-grad inline-block rounded-[3px] px-[18px] py-3 font-semibold">
-          + Add a product
+          + Paste a link
         </Link>
         <Link
           href="/manage/shops"

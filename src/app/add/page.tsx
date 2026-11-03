@@ -8,7 +8,7 @@ import { getCurrentUser, isOwner } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Add a product",
+  title: "Paste a link",
   description: "Paste a product link from any shop to compare its price or save it to your wishlist.",
 };
 
@@ -16,7 +16,7 @@ export default function AddProductPage(props: PageProps<"/add">) {
   return (
     <section>
       <PageIntro
-        title="Add a product"
+        title="Paste a link"
         intro="Found something at a shop? Paste its link. If it’s in Discover, its price joins the comparison. If not, it’s saved to your wishlist, just for you."
       />
       <Suspense fallback={<p className="text-mute">Loading…</p>}>
@@ -33,7 +33,7 @@ async function AddOrSignIn({ searchParams }: Pick<PageProps<"/add">, "searchPara
   if (!user)
     return (
       <div className="max-w-[460px] rounded-[4px] border border-line bg-card p-4">
-        <p>Sign in to add a product. It only takes a moment, and it means you can edit what you add.</p>
+        <p>Sign in to paste a product link. It only takes a moment, and it means you can edit what you add.</p>
         <p className="mt-3 flex gap-4">
           <Link href="/sign-in" className="text-acc underline">
             Sign in
