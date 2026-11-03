@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { PageIntro } from "@/components/PageIntro";
 import { ProductCard } from "@/components/ProductCard";
-import { CopyLinkButton, DeleteWishlistButton, RenameForm } from "@/components/WishlistTools";
+import { ShareButtons } from "@/components/ShareButtons";
+import { DeleteWishlistButton, RenameForm } from "@/components/WishlistTools";
 import { getMyFinds, getProducts } from "@/lib/catalogue";
 import type { Product } from "@/lib/types";
 import { getMyWishlist } from "@/lib/wishlist";
@@ -97,41 +98,30 @@ async function MyWishlist() {
   const h = await headers();
   const origin = `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
   const shareUrl = `${origin}/w/${list.shareCode}`;
-  const shareText = `${list.name} on Cometcart: ${shareUrl}`;
 
   return (
     <>
-      <h2 className="mb-3 font-display text-3xl font-medium">{list.name}</h2>
-      <p className="mb-4 text-sm text-mute">
+      <h2 className="mb-1 font-display text-3xl font-medium">{list.name}</h2>
+      <p className="mb-3 text-sm text-mute">
         {items.length} saved · {list.isPublic ? "Public" : "Private"}
       </p>
+      {/* Sharing at the top, where people look for it. */}
+      <div className="mb-5 grid gap-2 rounded-[4px] border border-line bg-card p-3">
+        <p className="text-sm text-mute">
+          <strong className="text-ink">Share your wishlist.</strong> Anyone with the link can see it but can’t change it.
+          Items marked “Only you can see this” stay private.
+        </p>
+        <ShareButtons url={shareUrl} title={list.name} text={`${list.name} on Cometcart:`} primary />
+      </div>
       <ItemGrid items={items} />
 
-      <h2 className="sec-title">Share it</h2>
-      <p className="mb-3 max-w-[560px] text-mute">
-        Anyone you send this link to can see your list, but can’t change it. Items marked “Only you can
-        see this” stay private.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          readOnly
-          value={shareUrl}
-          aria-label="Share link"
-          className="min-w-0 flex-1 basis-[260px] rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink"
-        />
-        <CopyLinkButton url={shareUrl} />
-        <a
-          href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
-          target="_blank"
-          rel="noopener"
-          className={ghostClass}
-        >
-          WhatsApp<span className="sr-only"> (opens in a new tab)</span>
-        </a>
-        <a href={`mailto:?subject=${encodeURIComponent(list.name)}&body=${encodeURIComponent(shareText)}`} className={ghostClass}>
-          Email
-        </a>
-      </div>
+      <h2 className="sec-title">Share link</h2>
+      <input
+        readOnly
+        value={shareUrl}
+        aria-label="Share link"
+        className="w-full min-w-0 max-w-[560px] rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink"
+      />
       <form action={newShareLink} className="mt-3">
         <input type="hidden" name="wishlistId" value={list.id} />
         <button type="submit" className="text-sm text-acc underline">

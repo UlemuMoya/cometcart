@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { PageIntro } from "@/components/PageIntro";
 import { RegistryDetailsForm } from "@/components/RegistryForms";
-import { CopyLinkButton } from "@/components/WishlistTools";
+import { ShareButtons } from "@/components/ShareButtons";
 import { getProducts } from "@/lib/catalogue";
 import { formatRand } from "@/lib/format";
 import { clearReservation, deleteRegistry, removeFromRegistry } from "@/lib/registry-actions";
@@ -23,7 +23,6 @@ export default function RegistryPage(props: PageProps<"/registry/[id]">) {
   );
 }
 
-const ghostClass = "rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function Registry({ params }: Pick<PageProps<"/registry/[id]">, "params">) {
@@ -37,7 +36,7 @@ async function Registry({ params }: Pick<PageProps<"/registry/[id]">, "params">)
   const takenBy = new Map(registry.reservations.map((r) => [r.productId, r.guestName]));
   const h = await headers();
   const shareUrl = `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}/w/${registry.shareCode}`;
-  const shareText = `${registry.name}: our gift registry on Cometcart ${shareUrl}`;
+  const shareText = `${registry.name}: our gift registry on Cometcart.`;
 
   return (
     <section>
@@ -56,7 +55,19 @@ async function Registry({ params }: Pick<PageProps<"/registry/[id]">, "params">)
         </Link>
       </p>
 
-      <h2 className="sec-title !mt-2 !text-2xl">Gifts</h2>
+      {/* Sharing at the top, where people look for it. */}
+      <div className="mb-2 grid gap-2 rounded-[4px] border border-line bg-card p-3">
+        <p className="text-sm text-mute">
+          <strong className="text-ink">Share with guests.</strong> They don’t need an account: they see the gifts and
+          prices, and tap “I’ll get this” so nobody doubles up.
+        </p>
+        <ShareButtons url={shareUrl} title={registry.name} text={shareText} primary />
+        <a href={`/w/${registry.shareCode}`} target="_blank" rel="noopener" className="w-fit text-sm text-acc underline">
+          See it as a guest<span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      </div>
+
+      <h2 className="sec-title !mt-6 !text-2xl">Gifts</h2>
       <p className="mb-3 text-sm text-mute">
         {registry.giftCount} gift{registry.giftCount === 1 ? "" : "s"} · {registry.takenCount} taken by guests
         {registry.surprise ? " (surprise mode: you can’t see which)" : ""}. To add gifts, open any product in{" "}
@@ -116,25 +127,13 @@ async function Registry({ params }: Pick<PageProps<"/registry/[id]">, "params">)
         </ul>
       )}
 
-      <h2 className="sec-title !text-2xl">Share with guests</h2>
-      <p className="mb-3 max-w-[600px] text-sm text-mute">
-        Guests don’t need an account. They see the gifts and prices, and tap “I’ll get this” so nobody doubles up.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          readOnly
-          value={shareUrl}
-          aria-label="Registry link"
-          className="min-w-0 flex-1 basis-[260px] rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink"
-        />
-        <CopyLinkButton url={shareUrl} />
-        <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener" className={ghostClass}>
-          WhatsApp<span className="sr-only"> (opens in a new tab)</span>
-        </a>
-        <a href={`/w/${registry.shareCode}`} target="_blank" rel="noopener" className={ghostClass}>
-          See it as a guest<span className="sr-only"> (opens in a new tab)</span>
-        </a>
-      </div>
+      <h2 className="sec-title !text-2xl">Registry link</h2>
+      <input
+        readOnly
+        value={shareUrl}
+        aria-label="Registry link"
+        className="w-full min-w-0 max-w-[560px] rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink"
+      />
 
       <h2 className="sec-title !text-2xl">Details</h2>
       <RegistryDetailsForm

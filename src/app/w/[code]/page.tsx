@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { CategoryTile } from "@/components/CategoryIcon";
 import { ProductCard } from "@/components/ProductCard";
 import { GuestGiftButton } from "@/components/RegistryForms";
+import { ShareButtons } from "@/components/ShareButtons";
 import { getProducts } from "@/lib/catalogue";
 import { formatRand } from "@/lib/format";
 import { isOwnPhoto } from "@/lib/photos";
@@ -48,9 +49,12 @@ async function SharedList({ params }: Pick<PageProps<"/w/[code]">, "params">) {
     <section>
       <p className="mt-[26px] text-sm text-mute">A wishlist shared with you</p>
       <h1 className="mb-1 font-display text-[clamp(30px,5vw,44px)] font-medium leading-[1.1]">{list.name}</h1>
-      <p className="mb-5 text-mute">
+      <p className="mb-3 text-mute">
         {items.length} saved. Tap Compare to see each product’s price at every shop.
       </p>
+      <div className="mb-5">
+        <ShareButtons url={`https://www.cometcart.co.za/w/${code}`} title={list.name} text={`${list.name} on Cometcart:`} />
+      </div>
 
       {items.length ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3.5">
@@ -90,6 +94,13 @@ function RegistryView({ code, registry }: { code: string; registry: NonNullable<
         {registry.gifts.length} gift{registry.gifts.length === 1 ? "" : "s"}, {open} still available. Choose one, tap{" "}
         <strong className="text-ink">I’ll get this</strong> so nobody doubles up, then buy it from the shop.
       </p>
+      <div className="mb-5">
+        <ShareButtons
+          url={`https://www.cometcart.co.za/w/${code}`}
+          title={registry.name}
+          text={`${registry.name}: gift registry on Cometcart.`}
+        />
+      </div>
 
       {registry.gifts.length ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3.5">

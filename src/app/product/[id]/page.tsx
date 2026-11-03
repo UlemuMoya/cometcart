@@ -10,6 +10,7 @@ import { ChangePhotoForm } from "@/components/ChangePhotoForm";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { RemoveFindButton } from "@/components/RemoveFindButton";
 import { SaveButton } from "@/components/SaveButton";
+import { ShareButtons } from "@/components/ShareButtons";
 import { formatRand, isStale } from "@/lib/format";
 import { otherShopLinks } from "@/lib/other-shops";
 import { setListed } from "@/lib/product-actions";
@@ -220,6 +221,17 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             + Add another shop’s price
           </Link>
         </div>
+        {product.listed && (
+          <div className="mt-4">
+            <ShareButtons
+              url={`https://www.cometcart.co.za/product/${product.id}`}
+              title={product.name}
+              text={`${product.name}: ${formatRand(offers[0].priceZar)}${
+                several ? ` – ${formatRand(offers.at(-1)!.priceZar)} at ${offers.length} shops` : ` at ${offers[0].shop}`
+              } on Cometcart.`}
+            />
+          </div>
+        )}
         {canEdit && (
           <p className="mt-3 text-sm">
             <Link href={`/product/${product.id}/edit`} className="text-acc underline">
