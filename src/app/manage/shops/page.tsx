@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { PageIntro } from "@/components/PageIntro";
-import { ImportFeedForm } from "@/components/ShopForms";
+import { ImportFeedForm, ShopifyImportButton } from "@/components/ShopForms";
 import { setPhotoPermission, setShopStatus } from "@/lib/shop-actions";
 import { createClient, getCurrentUser, isOwner } from "@/lib/supabase/server";
 
@@ -132,6 +132,15 @@ async function ManageShops() {
                   </form>
                 )}
               </div>
+              {s.status === "approved" && (
+                <div className="mt-2 border-t border-line pt-2">
+                  <ShopifyImportButton shopId={s.id} shopName={s.name} />
+                  <p className="mt-1 text-xs text-mute">
+                    For shops on Shopify: reads their in-stock products and prices straight from{" "}
+                    {new URL(s.website).hostname}. Run it again any time to update prices.
+                  </p>
+                </div>
+              )}
             </li>
           ))}
         </ul>

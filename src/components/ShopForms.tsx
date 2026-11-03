@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import type { FormState } from "@/lib/auth-actions";
-import { applyShop, importFeed, type ImportState } from "@/lib/shop-actions";
+import { applyShop, importFeed, importShopify, type ImportState } from "@/lib/shop-actions";
 
 const inputClass = "rounded-[3px] border border-line bg-card px-3 py-[11px] text-ink placeholder:text-mute";
 const labelClass = "grid gap-1 text-sm text-mute";
@@ -119,6 +119,36 @@ export function ImportFeedForm({ shops }: { shops: { id: string; name: string; p
       <button type="submit" disabled={pending || shops.length === 0} className={buttonClass}>
         {pending ? "Importing…" : "Import feed"}
       </button>
+    </form>
+  );
+}
+
+/** For an approved shop on Shopify: reads its product list straight from its store. */
+export function ShopifyImportButton({ shopId, shopName }: { shopId: string; shopName: string }) {
+  const [state, action, pending] = useActionState<ImportState, FormData>(importShopify, {});
+  return (
+    <form action={action} className="grid gap-2">
+      <input type="hidden" name="shopId" value={shopId} />
+      <button
+        type="submit"
+        disabled={pending}
+        className="w-fit rounded-[3px] border border-line px-3 py-1.5 text-sm font-semibold hover:border-mute disabled:opacity-60"
+      >
+        {pending ? `Reading ${shopName}’s store…` : "Import from Shopify"}
+      </button>
+      <Status state={state} />
+      {state.problems && state.problems.length > 0 && (
+        <details className="text-sm text-mute">
+          <summary className="cursor-pointer text-acc underline">
+            {state.problems.length} product{state.problems.length > 1 ? "s" : ""} left out
+          </summary>
+          <ul className="mt-2 list-disc pl-5">
+            {state.problems.slice(0, 50).map((p) => (
+              <li key={`${p.line}-${p.reason}`}>{p.reason}</li>
+            ))}
+          </ul>
+        </details>
+      )}
     </form>
   );
 }

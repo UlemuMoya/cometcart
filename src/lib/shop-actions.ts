@@ -3,7 +3,8 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/lib/auth-actions";
-import { readFeed, type FeedProblem } from "@/lib/feed-csv";
+import { readFeed, type FeedProblem, type FeedRow } from "@/lib/feed-csv";
+import { readShopifyStore } from "@/lib/shopify-feed";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import { createClient, isOwner } from "@/lib/supabase/server";
 
@@ -86,14 +87,41 @@ export async function importFeed(_prev: ImportState, form: FormData): Promise<Im
 
   const { rows, problems } = readFeed(await file.text(), shop.website);
   if (!rows.length) return { error: "No products could be read from that file.", problems };
+  return saveFeed(supabase, shop.id, rows, problems);
+}
 
-  const { data, error } = await supabase.rpc("import_shop_feed", { shop: shop.id, rows });
-  if (error) return { error: "Couldn’t import the feed. Please check the file and try again.", problems };
+/** Owner imports an approved Shopify shop's products straight from its store. */
+export async function importShopify(_prev: ImportState, form: FormData): Promise<ImportState> {
+  const supabase = await ownerClient();
+  const { data: shop } = await supabase
+    .from("shops")
+    .select("id, website, status")
+    .eq("id", text(form, "shopId"))
+    .maybeSingle();
+  if (!shop || shop.status !== "approved") return { error: "Please choose an approved shop." };
+
+  try {
+    const { rows, problems } = await readShopifyStore(shop.website);
+    if (!rows.length) return { error: "None of this store’s products fit a Cometcart category.", problems };
+    return saveFeed(supabase, shop.id, rows, problems);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn’t read this store. Please try again later." };
+  }
+}
+
+async function saveFeed(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  shopId: string,
+  rows: FeedRow[],
+  problems: FeedProblem[],
+): Promise<ImportState> {
+  const { data, error } = await supabase.rpc("import_shop_feed", { shop: shopId, rows });
+  if (error) return { error: "Couldn’t import the products. Please try again.", problems };
   const r = (data as { added_products: number; added_prices: number; updated_prices: number; skipped: number }[])[0];
   refresh();
   return {
     message: `Done: ${r.added_products} new products, ${r.added_prices} new prices, ${r.updated_prices} prices updated${
-      r.skipped + problems.length ? `, ${r.skipped + problems.length} rows skipped` : ""
+      r.skipped + problems.length ? `, ${r.skipped + problems.length} skipped` : ""
     }.`,
     problems,
   };
