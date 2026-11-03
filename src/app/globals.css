@@ -19,10 +19,12 @@
   color-scheme: dark;
 }
 
+/* A deep version of the button gradient (teal → indigo → purple), dark enough for easy reading. */
 body {
   background:
     radial-gradient(ellipse 80% 40% at 15% -5%, rgba(61, 255, 178, 0.16), transparent 70%),
     radial-gradient(ellipse 70% 40% at 85% 0%, rgba(139, 92, 246, 0.22), transparent 70%),
+    linear-gradient(120deg, #063a33 0%, #10195a 55%, #36115c 100%),
     var(--color-bg);
   background-attachment: fixed;
   color: var(--color-ink);

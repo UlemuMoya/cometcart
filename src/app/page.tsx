@@ -27,12 +27,12 @@ export default function Home(props: PageProps<"/">) {
       <SearchBar />
 
       <h2 className="sec-title">Inspiration</h2>
-      <ul className="grid auto-rows-[120px] grid-cols-2 gap-2.5 min-[561px]:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-2.5 min-[561px]:grid-cols-4">
         {INSPIRATION.map((tile) => (
           <li key={tile.category}>
             <Link
               href={`/discover?cat=${encodeURIComponent(tile.category)}`}
-              className="relative flex h-full items-end overflow-hidden rounded-[4px] p-3 text-white"
+              className="relative flex aspect-[3/2] items-end overflow-hidden rounded-[4px] p-3 text-white"
             >
               <Image
                 src={tile.image}
@@ -40,6 +40,7 @@ export default function Home(props: PageProps<"/">) {
                 fill
                 sizes="(max-width: 560px) 50vw, 240px"
                 className="object-cover"
+                style={{ objectPosition: tile.focus ?? "50% 50%" }}
               />
               <span
                 aria-hidden="true"
