@@ -16,7 +16,7 @@ All photos below are from **Pexels**. They were downloaded on 3 Nov 2026 at 1200
 
 | File | Shows | Photographer | Pexels page | Notes |
 |---|---|---|---|---|
-| top.jpg | White T-shirt on a wooden hanger | Daniel & Hannah Snipes | https://www.pexels.com/photo/minimalist-white-t-shirt-on-wooden-hanger-37704850/ | |
+| top.jpg | Plain white crew-neck T-shirt on light grey | Mr. Mockup | https://www.pexels.com/photo/a-blank-white-shirt-12025472/ | |
 | jeans.jpg | Folded blue jeans on white | Castorly Stock | https://www.pexels.com/photo/blue-denim-jeans-4109798/ | |
 | sneakers.jpg | Cream leather sneakers from above | Kaboompics.com | https://www.pexels.com/photo/top-close-up-view-of-white-sneaker-shoes-on-light-floor-panels-7193625/ | Cropped to the top 4:3 area |
 | handbag.jpg | Blue and tan tote bags on white | Valentin Ivantsov | https://www.pexels.com/photo/stylish-blue-and-tan-tote-bags-on-white-background-36367488/ | |

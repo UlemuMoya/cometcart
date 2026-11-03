@@ -4,7 +4,7 @@
 import type { Category } from "@/lib/types";
 
 export const INSPIRATION: { category: Category; image: string; alt: string }[] = [
-  { category: "Tops", image: "/images/top.jpg", alt: "White T-shirt on a wooden hanger" },
+  { category: "Tops", image: "/images/top.jpg", alt: "Plain white crew-neck T-shirt" },
   { category: "Pants", image: "/images/jeans.jpg", alt: "Folded blue jeans" },
   { category: "Shoes", image: "/images/sneakers.jpg", alt: "Cream leather sneakers" },
   { category: "Bags", image: "/images/handbag.jpg", alt: "Blue and tan tote bags" },
