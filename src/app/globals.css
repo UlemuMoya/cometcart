@@ -56,44 +56,11 @@ body {
     border-image: linear-gradient(90deg, #19d68f, #8b5cf6, #e879f9) 1;
   }
 
-  /* Starry aurora masthead with a comet in the lower right. */
+  /* The home page heading block: one solid colour so the text reads clearly. */
   .mast {
-    position: relative;
-    overflow: hidden;
     color: #f1efff;
-    background:
-      radial-gradient(circle at 88% 80%, #fff 0, #d7fff5 3px, #7dffd2 13px, rgba(61, 255, 178, 0.4) 32px, transparent 60%),
-      radial-gradient(ellipse 70% 34% at 28% 26%, rgba(61, 255, 178, 0.55), transparent 72%),
-      radial-gradient(ellipse 55% 30% at 58% 20%, rgba(34, 211, 197, 0.45), transparent 72%),
-      radial-gradient(ellipse 48% 30% at 80% 40%, rgba(139, 92, 246, 0.6), transparent 72%),
-      radial-gradient(ellipse 45% 22% at 48% 62%, rgba(232, 121, 249, 0.4), transparent 72%),
-      linear-gradient(165deg, #020617, #07184f 60%, #1a1060);
-  }
-  .mast > * {
-    position: relative;
-    z-index: 1;
-  }
-  .mast::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(7px 7px at 7% 18%, #fff 0, #fff 18%, rgba(210, 225, 255, 0.55) 42%, transparent 100%),
-      radial-gradient(5px 5px at 17% 74%, #fff 0, #fff 20%, rgba(210, 225, 255, 0.5) 45%, transparent 100%),
-      radial-gradient(8px 8px at 29% 12%, #fff 0, #fff 16%, rgba(220, 235, 255, 0.6) 40%, transparent 100%),
-      radial-gradient(5px 5px at 38% 58%, #fff 0, #fff 20%, rgba(210, 225, 255, 0.5) 45%, transparent 100%),
-      radial-gradient(6px 6px at 46% 86%, #fff 0, #fff 18%, rgba(210, 225, 255, 0.55) 42%, transparent 100%),
-      radial-gradient(7px 7px at 55% 24%, #fff 0, #fff 18%, rgba(220, 235, 255, 0.6) 42%, transparent 100%),
-      radial-gradient(5px 5px at 64% 70%, #fff 0, #fff 20%, rgba(210, 225, 255, 0.5) 45%, transparent 100%),
-      radial-gradient(9px 9px at 73% 10%, #fff 0, #fff 15%, rgba(230, 240, 255, 0.65) 40%, transparent 100%),
-      radial-gradient(5px 5px at 81% 56%, #fff 0, #fff 20%, rgba(210, 225, 255, 0.5) 45%, transparent 100%),
-      radial-gradient(7px 7px at 92% 28%, #fff 0, #fff 18%, rgba(220, 235, 255, 0.6) 42%, transparent 100%),
-      radial-gradient(5px 5px at 96% 88%, #fff 0, #fff 20%, rgba(210, 225, 255, 0.5) 45%, transparent 100%),
-      radial-gradient(4px 4px at 22% 40%, #fff 0, rgba(210, 225, 255, 0.5) 50%, transparent 100%),
-      radial-gradient(4px 4px at 60% 48%, #fff 0, rgba(210, 225, 255, 0.5) 50%, transparent 100%),
-      radial-gradient(4px 4px at 86% 76%, #fff 0, rgba(210, 225, 255, 0.5) 50%, transparent 100%);
+    background: #0e1650;
+    border: 1px solid rgba(140, 170, 255, 0.18);
   }
 
   .orbit {
@@ -119,9 +86,6 @@ body {
 
 /* Motion only for people who haven't asked their device to reduce it. */
 @media (prefers-reduced-motion: no-preference) {
-  .mast::before {
-    animation: twinkle 6s ease-in-out infinite;
-  }
   .lift {
     transition: transform 0.15s;
   }
@@ -130,8 +94,3 @@ body {
   }
 }
 
-@keyframes twinkle {
-  50% {
-    opacity: 0.7;
-  }
-}
