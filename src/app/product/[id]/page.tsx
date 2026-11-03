@@ -226,8 +226,8 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           <>
             <h2 className="sec-title !mt-8 !text-2xl">Check other shops</h2>
             <p className="mb-3 text-sm text-mute">
-              Opens each shop’s own search for this product. Found it there? Copy the link and add its
-              price to compare.
+              Searches each shop’s own website for this product. Results depend on the shop, so it may
+              show similar items or nothing at all. If you find the same product, copy its link and add the price.
             </p>
             <ul className="flex flex-wrap gap-2">
               {elsewhere.map((shop) => (

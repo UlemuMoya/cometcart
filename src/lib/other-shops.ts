@@ -45,7 +45,9 @@ const BY_CATEGORY: Record<Category, Shop[]> = {
 /** Search links at shops suited to this category, leaving out shops already compared. */
 export function otherShopLinks(name: string, category: Category, knownShops: string[]) {
   const known = knownShops.map((s) => s.toLowerCase());
-  const term = name.replace(/\(.*?\)/g, " ").replace(/\s+/g, " ").trim(); // "Face serum (30 ml)" → "Face serum"
+  // Shops' own search works best with a few key words: drop anything in brackets and keep the
+  // first 5 words, e.g. "Philips 1000 Series Airfryer 6.2L NA130/00" → "Philips 1000 Series Airfryer 6.2L".
+  const term = name.replace(/\(.*?\)/g, " ").replace(/\s+/g, " ").trim().split(" ").slice(0, 5).join(" ");
   return BY_CATEGORY[category]
     .filter((shop) => !known.some((k) => k.includes(shop.name.toLowerCase().split(/[ .]/)[0])))
     .map((shop) => ({ name: shop.name, href: shop.search(term) }));
