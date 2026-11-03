@@ -29,7 +29,7 @@ export default function Home(props: PageProps<"/">) {
       <SearchBar />
 
       <h2 className="sec-title">What you can do</h2>
-      <ul className="grid gap-2.5 min-[561px]:grid-cols-2 md:grid-cols-3">
+      <ul className="grid gap-2.5 min-[561px]:grid-cols-2 md:grid-cols-4">
         {FEATURES.map((f) => (
           <li key={f.title} className="rounded-[4px] border border-line bg-card px-4 py-3.5">
             <h3 className="mb-1 font-semibold">
@@ -106,23 +106,14 @@ const FEATURES: { title: string; text: string; href?: string }[] = [
     href: "/discover",
   },
   {
-    title: "Save to your wishlist",
-    text: "Tap ♡ Save on anything you like. Make it public or private, rename it, or delete it.",
-    href: "/wishlist",
-  },
-  {
-    title: "Share by link",
-    text: "Send your wishlist on WhatsApp or email. People can see it but can’t change it.",
+    title: "Save and share",
+    text: "Tap ♡ Save to keep it in your wishlist, then send the link on WhatsApp. People can look but not change it.",
     href: "/wishlist",
   },
   {
     title: "Paste a link from any shop",
     text: "Found something elsewhere? Paste its link to save it, or to add that shop’s price to a comparison.",
     href: "/add",
-  },
-  {
-    title: "Use it like an app",
-    text: "Add Cometcart to your phone’s home screen. On iPhone, use Safari: Share, then Add to Home Screen.",
   },
 ];
 
