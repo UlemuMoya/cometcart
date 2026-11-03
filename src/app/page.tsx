@@ -109,8 +109,8 @@ const FEATURES: { title: string; text: string; href?: string }[] = [
     href: "/discover",
   },
   {
-    title: "Save and share",
-    text: "Tap ♡ Save to add products to your wishlist (free account), then share it on WhatsApp. Friends can view it but can’t change it.",
+    title: "Save, share and gift",
+    text: "Save to your wishlist, or create a gift registry for a wedding, baby or birthday (free account). Share it on WhatsApp or with a link.",
     href: "/wishlist",
   },
   {
