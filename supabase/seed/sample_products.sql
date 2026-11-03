@@ -9,7 +9,7 @@ delete from public.products where description like 'Sample product%';
 
 with new_products as (
   insert into public.products (name, category, image, description) values
-    ('Black leather handbag',           'Bags',       '/images/handbag.jpg',    'Sample product for testing. Delete before launch.'),
+    ('Canvas tote bag',                 'Bags',       '/images/handbag.jpg',    'Sample product for testing. Delete before launch.'),
     ('White leather sneakers',          'Shoes',      '/images/sneakers.jpg',   'Sample product for testing. Delete before launch.'),
     ('Linen bedding set (queen)',       'Bedding',    '/images/bedding.jpg',    'Sample product for testing. Delete before launch.'),
     ('White dome table lamp',           'Lighting',   '/images/lamp.jpg',       'Sample product for testing. Delete before launch.'),
@@ -36,7 +36,7 @@ insert into public.offers (product_id, shop_name, price_zar, url)
 select p.id, o.shop || ' (sample)', o.price, 'https://example.com/sample-product'
 from new_products p
 join (values
-  ('Black leather handbag', 'Nova Mart', 1399), ('Black leather handbag', 'Lumi Store', 1299), ('Black leather handbag', 'Orbit Fashion', 1549),
+  ('Canvas tote bag', 'Nova Mart', 1399), ('Canvas tote bag', 'Lumi Store', 1299), ('Canvas tote bag', 'Orbit Fashion', 1549),
   ('White leather sneakers', 'Orbit Fashion', 849), ('White leather sneakers', 'Nova Mart', 799), ('White leather sneakers', 'Stride House', 899),
   ('Linen bedding set (queen)', 'Haven Home', 1799), ('Linen bedding set (queen)', 'Nova Mart', 1899), ('Linen bedding set (queen)', 'Casa Mode', 1699),
   ('White dome table lamp', 'Casa Mode', 649), ('White dome table lamp', 'Haven Home', 699),
