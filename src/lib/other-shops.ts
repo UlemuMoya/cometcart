@@ -48,7 +48,10 @@ export function otherShopLinks(name: string, category: Category, knownShops: str
   // Shops' own search works best with a few key words: drop anything in brackets and keep the
   // first 5 words, e.g. "Philips 1000 Series Airfryer 6.2L NA130/00" → "Philips 1000 Series Airfryer 6.2L".
   const term = name.replace(/\(.*?\)/g, " ").replace(/\s+/g, " ").trim().split(" ").slice(0, 5).join(" ");
-  return BY_CATEGORY[category]
+  // The category's specialist shops, plus the big all-round shops, which sell almost everything.
+  const shops = [...new Set([...BY_CATEGORY[category], SHOPS.takealot, SHOPS.makro, SHOPS.amazon])];
+  return shops
     .filter((shop) => !known.some((k) => k.includes(shop.name.toLowerCase().split(/[ .]/)[0])))
+    .slice(0, 4)
     .map((shop) => ({ name: shop.name, href: shop.search(term) }));
 }

@@ -63,7 +63,10 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const owner = !!user && product.listed === true && (await isOwner(user.id));
   const canChangePhoto = owner || (!!user && !product.listed && product.addedBy === user.id);
   const canEdit = canChangePhoto || (!!user && product.offers.some((o) => o.addedBy === user.id));
-  const elsewhere = otherShopLinks(product.name, product.category, product.offers.map((o) => o.shop));
+  // Only while a comparison is still thin (fewer than 3 shops); after that the leftover
+  // suggestions are usually shops that don't sell the product.
+  const elsewhere =
+    product.offers.length < 3 ? otherShopLinks(product.name, product.category, product.offers.map((o) => o.shop)) : [];
 
   const offers = product.offers; // already cheapest first
   const several = offers.length > 1;
