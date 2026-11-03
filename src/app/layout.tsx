@@ -63,6 +63,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/privacy" className="text-acc underline">
               Privacy policy
             </Link>
+            {" · "}
+            <Link href="/list-your-shop" className="text-acc underline">
+              List your shop
+            </Link>
           </p>
         </main>
         <AssistantButton />

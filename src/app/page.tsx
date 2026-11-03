@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/ProductCard";
@@ -120,7 +121,7 @@ function Thumbs({ products }: { products: Product[] }) {
     <span className="flex gap-1.5" aria-hidden="true">
       {products.slice(0, 5).map((p) =>
         p.image ? (
-          <Image key={p.id} src={p.image} alt="" width={40} height={40} className="h-10 w-10 rounded-[3px] object-cover" />
+          <Image key={p.id} src={p.image} unoptimized={!isOwnPhoto(p.image)} alt="" width={40} height={40} className="h-10 w-10 rounded-[3px] object-cover" />
         ) : (
           <span key={p.id} className="h-10 w-10 rounded-[3px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]" />
         ),

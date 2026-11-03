@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { formatRand, lowestOffer } from "@/lib/format";
 import type { Product } from "@/lib/types";
@@ -33,6 +34,7 @@ export function ProductCard({ product, badge, saved }: Props) {
             src={product.image}
             alt={product.name}
             fill
+            unoptimized={!isOwnPhoto(product.image)}
             sizes="(max-width: 560px) 100vw, 240px"
             className="object-cover"
           />

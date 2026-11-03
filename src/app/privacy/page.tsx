@@ -68,8 +68,9 @@ export default function PrivacyPage() {
         <li>To run your account and let you sign in, reset your password and keep your wishlist.</li>
         <li>To show the products and prices you add, so you (and, for Discover products, other shoppers) can compare.</li>
         <li>
-          To count “Visit shop” clicks and saves, so we can show what’s trending and learn which shops matter to
-          shoppers. Trending only uses totals, never who saved or clicked.
+          To count “Visit shop” clicks and saves, so we can show what’s trending, learn which shops matter to
+          shoppers, and tell shops how many visitors we sent them. Shops and trending only ever see totals, never
+          who saved or clicked.
         </li>
         <li>To keep Cometcart secure and working properly.</li>
       </ul>
@@ -97,6 +98,18 @@ export default function PrivacyPage() {
           Shop prices you add to a Discover product are visible to everyone, without your name.
         </li>
       </ul>
+
+      <h2 className={h2}>Shops that list with us</h2>
+      <p className={p}>
+        When a shop applies on our{" "}
+        <Link href="/list-your-shop" className="text-acc underline">
+          List your shop
+        </Link>{" "}
+        page, we keep the contact person’s name, work email and (if given) phone number, to review the application and
+        manage the listing. We don’t use them for anything else. We delete them when the shop stops listing with us, or
+        sooner if asked. Shops may in future pay us for the visitors we send them; this never changes the order of
+        prices, which are always sorted from lowest to highest.
+      </p>
 
       <h2 className={h2}>Who helps us store it</h2>
       <p className={p}>We use trusted service providers (“operators”) who may only use your information to help run Cometcart:</p>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -39,13 +40,19 @@ async function Manage() {
         <Link href="/add" className="btn-grad inline-block rounded-[3px] px-[18px] py-3 font-semibold">
           + Add a product
         </Link>
+        <Link
+          href="/manage/shops"
+          className="rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute"
+        >
+          Manage shops
+        </Link>
         <span className="text-sm text-mute">{products.length} products in Discover</span>
       </p>
       <ul className="grid gap-2.5">
         {products.map((p) => (
           <li key={p.id} className="flex flex-wrap items-start gap-3 rounded-[4px] border border-line bg-card p-3">
             {p.image ? (
-              <Image src={p.image} alt="" width={64} height={64} className="h-16 w-16 flex-none rounded-[3px] object-cover" />
+              <Image src={p.image} unoptimized={!isOwnPhoto(p.image)} alt="" width={64} height={64} className="h-16 w-16 flex-none rounded-[3px] object-cover" />
             ) : (
               <span className="h-16 w-16 flex-none rounded-[3px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]" />
             )}

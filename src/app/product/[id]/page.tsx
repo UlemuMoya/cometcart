@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -46,6 +47,7 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             src={product.image}
             alt={product.name}
             fill
+            unoptimized={!isOwnPhoto(product.image)}
             priority
             sizes="(max-width: 768px) 100vw, 420px"
             className="object-cover"
