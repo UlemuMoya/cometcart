@@ -17,7 +17,7 @@ export default function AccountPage(props: PageProps<"/account">) {
     <section>
       <PageIntro
         title="Your account"
-        intro="Tell us your sizes, budget and style if you like. It’s optional and only you can see it."
+        intro="Your details and settings. Sizes, budget and style are optional and only you can see them; we’ll use them to suggest products later."
       />
       <Suspense fallback={<p className="text-mute">Loading your profile…</p>}>
         <Account searchParams={props.searchParams} />

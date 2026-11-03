@@ -13,7 +13,7 @@ export default function SignUpPage() {
     <section>
       <PageIntro
         title="Create your account"
-        intro="Save products from any shop to wishlists you can share."
+        intro="Save products from any shop to a wishlist you can share. It’s free."
       />
       <SignUpForm />
       <p className="mt-4 max-w-[460px] text-sm text-mute">

@@ -21,8 +21,8 @@ export default function Home(props: PageProps<"/">) {
           Find anything. Compare every price. Save what you love.
         </h1>
         <p className="text-[#dcd6ff]">
-          Describe it in your own words. Cometcart finds it across South African shops, compares
-          prices, and keeps your wishlist ready to share.
+          Search in your own words, compare prices from South African shops side by side, and keep
+          a wishlist you can share.
         </p>
       </section>
 
@@ -59,7 +59,7 @@ export default function Home(props: PageProps<"/">) {
       <Suspense
         fallback={
           <>
-            <h2 className="sec-title">Trending finds</h2>
+            <h2 className="sec-title">Trending and new</h2>
             <p className="text-mute">Loading…</p>
           </>
         }
@@ -71,7 +71,6 @@ export default function Home(props: PageProps<"/">) {
       <Suspense fallback={<p className="text-mute">Loading…</p>}>
         <Collections />
       </Suspense>
-      <p className="mt-2 text-sm text-mute">Registries and shared collections come in the full app.</p>
     </>
   );
 }
@@ -86,28 +85,33 @@ async function AccountDeleted({ searchParams }: Pick<PageProps<"/">, "searchPara
   );
 }
 
-/** Trending once people are saving and visiting products; until then, the newest in Discover. */
+/**
+ * Trending products first (once at least 3 have saves or clicks), then the newest in Discover,
+ * marked "New", so products nobody has clicked yet still appear. Up to 8 in all.
+ */
 async function Finds() {
   const [catalogue, wishlist] = await Promise.all([getCatalogue(), getMyWishlist()]);
-  const trending = await getTrending(catalogue);
-  const isTrending = trending.length >= 3;
-  const products = isTrending ? trending : catalogue.slice(0, 8);
-  if (!products.length) return null;
+  const found = await getTrending(catalogue);
+  const trending = found.length >= 3 ? found.slice(0, 8) : [];
+  const fresh = catalogue.filter((p) => !trending.includes(p)).slice(0, 8 - trending.length);
+  if (!trending.length && !fresh.length) return null;
   const saved = new Set(wishlist?.productIds ?? []);
+  const card = (p: (typeof catalogue)[number], badge?: string) => (
+    <div key={p.id} className="w-[230px] flex-none">
+      <ProductCard product={p} badge={badge} saved={wishlist === undefined ? false : saved.has(p.id)} />
+    </div>
+  );
 
   return (
     <>
-      <h2 className="sec-title">{isTrending ? "Trending finds" : "New in Discover"}</h2>
+      <h2 className="sec-title">{trending.length ? "Trending and new" : "New in Discover"}</h2>
       <div className="flex gap-3.5 overflow-x-auto pb-2 [scrollbar-width:thin]">
-        {products.map((p) => (
-          <div key={p.id} className="w-[230px] flex-none">
-            <ProductCard product={p} saved={wishlist === undefined ? false : saved.has(p.id)} />
-          </div>
-        ))}
+        {trending.map((p) => card(p, "Trending"))}
+        {fresh.map((p) => card(p, trending.length ? "New" : undefined))}
       </div>
       <p className="mt-1.5 text-[13px] text-mute">
-        {isTrending
-          ? "The most saved and visited products on Cometcart in the last 30 days."
+        {trending.length
+          ? "Trending: most saved and visited in the last 30 days. New: just added to Discover."
           : "The latest products added to Discover."}{" "}
         <Link href="/discover" className="text-acc underline">
           See everything

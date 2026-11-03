@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function SignInPage(props: PageProps<"/sign-in">) {
   return (
     <section>
-      <PageIntro title="Sign in" intro="Welcome back. Your wishlists are waiting." />
+      <PageIntro title="Sign in" intro="Welcome back. Your wishlist is waiting." />
       <Suspense fallback={<SignInForm />}>
         <SignIn searchParams={props.searchParams} />
       </Suspense>

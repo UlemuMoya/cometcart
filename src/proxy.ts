@@ -4,6 +4,16 @@ import { supabaseConfigured, supabaseKey, supabaseUrl } from "@/lib/supabase/con
 
 // Keeps people signed in: refreshes the Supabase session cookie on each page visit.
 export async function proxy(request: NextRequest) {
+  // One address for everyone: phones keep a separate sign-in per address, so visitors
+  // to the old Vercel address are sent to www.cometcart.co.za and stay signed in there.
+  if (request.nextUrl.hostname === "cometcart.vercel.app") {
+    const url = request.nextUrl.clone();
+    url.protocol = "https";
+    url.host = "www.cometcart.co.za";
+    url.port = "";
+    return NextResponse.redirect(url, 308);
+  }
+
   let response = NextResponse.next({ request });
   if (!supabaseConfigured) return response;
 
