@@ -108,7 +108,7 @@ export async function setListed(form: FormData) {
   refresh();
 }
 
-/** Fix a product's name or category: your own private one, or (site owner) any product in Discover. */
+/** Fix a product's name, category or "similar items" label: your own private one, or (site owner) any product in Discover. */
 export async function updateDetails(_prev: AddProductState, form: FormData): Promise<AddProductState> {
   if (!supabaseConfigured) return { error: "Editing isn’t connected yet." };
   const supabase = await createClient();
@@ -119,11 +119,15 @@ export async function updateDetails(_prev: AddProductState, form: FormData): Pro
   if (!name || name.length > 120) return { error: "Please give the product a name (up to 120 characters)." };
   if (!(CATEGORIES as readonly string[]).includes(category)) return { error: "Please choose a category." };
 
+  const similar = form.get("similarItems") === "on";
+
   const product = await getProduct(text(form, "productId"));
   if (!product) return { error: "That product no longer exists." };
   const { error } = product.listed
-    ? await supabase.rpc("update_listed_product", { product: product.id, new_name: name, new_category: category })
-    : await supabase.from("products").update({ name, category }).eq("id", product.id);
+    ? await supabase
+        .rpc("update_listed_product", { product: product.id, new_name: name, new_category: category })
+        .then((r) => (r.error ? r : supabase.rpc("set_similar_items", { product: product.id, is_similar: similar })))
+    : await supabase.from("products").update({ name, category, similar_items: similar }).eq("id", product.id);
   if (error) return { error: "Couldn’t save. Please try again." };
   refresh();
   return { message: "Saved." };

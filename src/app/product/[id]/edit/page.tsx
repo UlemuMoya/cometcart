@@ -45,8 +45,13 @@ async function Edit({ params }: Pick<PageProps<"/product/[id]/edit">, "params">)
 
       {canEditDetails && (
         <>
-          <h2 className="sec-title !mt-0 !text-2xl">Name and category</h2>
-          <DetailsForm productId={product.id} name={product.name} category={product.category} />
+          <h2 className="sec-title !mt-0 !text-2xl">Details</h2>
+          <DetailsForm
+            productId={product.id}
+            name={product.name}
+            category={product.category}
+            similarItems={product.similarItems === true}
+          />
           <div className="mt-4">
             <ChangePhotoForm productId={product.id} />
           </div>

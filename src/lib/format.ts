@@ -9,6 +9,15 @@ export function lowestOffer(offers: Offer[]): Offer {
   return offers.reduce((best, o) => (o.priceZar < best.priceZar ? o : best));
 }
 
+/** The line under a price: which shop is cheapest, or that every shop charges the same. */
+export function priceNote(offers: Offer[], similarItems?: boolean): string {
+  const best = lowestOffer(offers);
+  if (offers.length < 2) return `At ${best.shop}`;
+  if (similarItems) return `Similar items · cheapest at ${best.shop}`;
+  if (offers.every((o) => o.priceZar === best.priceZar)) return "Same price at every shop";
+  return `Lowest at ${best.shop}`;
+}
+
 /** "1 Nov 2026", the way price-checked dates are shown. */
 export function formatCheckedDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", {

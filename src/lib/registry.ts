@@ -118,6 +118,7 @@ type RpcGift = {
   category: Category;
   image: string | null;
   listed: boolean;
+  similar_items?: boolean;
   taken: boolean;
   offers: { id: string; shop: string; price: number | string; url: string | null; checked_at: string }[];
 };
@@ -148,6 +149,7 @@ export async function getRegistryByCode(code: string): Promise<SharedRegistry | 
         category: g.category,
         image: g.image,
         listed: g.listed,
+        similarItems: g.similar_items ?? false,
         taken: g.taken,
         href: g.listed ? `/product/${g.product_id}` : undefined,
         offers: g.offers.map((o) => ({

@@ -21,6 +21,8 @@ export type Product = {
   image?: string | null;
   description?: string | null;
   offers: Offer[];
+  /** The shops sell similar items, not the identical product, so no "lowest price" claim. */
+  similarItems?: boolean;
   /** In Discover. False for a shopper's private find. */
   listed?: boolean;
   /** Who added it (a user id), if anyone. */

@@ -17,7 +17,17 @@ function Status({ state }: { state: AddProductState }) {
   );
 }
 
-export function DetailsForm({ productId, name, category }: { productId: string; name: string; category: string }) {
+export function DetailsForm({
+  productId,
+  name,
+  category,
+  similarItems,
+}: {
+  productId: string;
+  name: string;
+  category: string;
+  similarItems: boolean;
+}) {
   const [state, action, pending] = useActionState(updateDetails, {});
   return (
     <form action={action} className="grid max-w-[460px] gap-3">
@@ -34,9 +44,18 @@ export function DetailsForm({ productId, name, category }: { productId: string; 
           ))}
         </select>
       </label>
+      <label className="flex items-start gap-2.5 text-sm">
+        <input type="checkbox" name="similarItems" defaultChecked={similarItems} className="mt-1 h-4 w-4 accent-[#5eead4]" />
+        <span>
+          Similar items
+          <span className="block text-mute">
+            Tick when the shops sell different versions (for example three different black bags), not the identical product.
+          </span>
+        </span>
+      </label>
       <Status state={state} />
       <button type="submit" disabled={pending} className={`${ghostClass} w-fit`}>
-        {pending ? "Saving…" : "Save name and category"}
+        {pending ? "Saving…" : "Save details"}
       </button>
     </form>
   );

@@ -2,7 +2,7 @@ import Image from "next/image";
 import { CategoryTile } from "@/components/CategoryIcon";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
-import { formatRand, isStale, lowestOffer } from "@/lib/format";
+import { formatRand, isStale, lowestOffer, priceNote } from "@/lib/format";
 import type { Product } from "@/lib/types";
 import { RemoveFindButton } from "./RemoveFindButton";
 import { SaveButton } from "./SaveButton";
@@ -54,7 +54,7 @@ export function ProductCard({ product, badge, saved }: Props) {
           {highest > best.priceZar && <span className="font-semibold text-mute"> – {formatRand(highest)}</span>}
         </span>
         <span className="text-xs text-mute">
-          {shops > 1 && highest === best.priceZar ? "Same price at every shop" : `${shops > 1 ? "Lowest at" : "At"} ${best.shop}`}
+          {priceNote(product.offers, product.similarItems)}
           {" · checked "}
           {best.checkedOn}
           {isStale(best.checkedAt) && <span className="text-[#fcd34d]"> · may have changed</span>}

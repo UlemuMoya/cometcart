@@ -77,10 +77,12 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const cheapest = offers[0].priceZar;
   // Only mark a "lowest" price when some shop really charges more.
   const priceDiffers = offers.at(-1)!.priceZar > cheapest;
+  // Similar items at each shop, not the identical product: say so, and call it "cheapest", not "lowest".
+  const similar = several && product.similarItems === true;
 
   // Product and price details in the format search engines read (schema.org), only for
   // Discover products, and only with the real prices, shops and dates shown on the page.
-  const structuredData = product.listed
+  const structuredData = product.listed && !similar
     ? {
         "@context": "https://schema.org",
         "@type": "Product",
@@ -152,6 +154,14 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             {several && !priceDiffers ? `same price at all ${offers.length} shops` : `${offers.length} shop${several ? "s" : ""}`}
           </span>
         </p>
+        {similar && (
+          <p className="mt-3 max-w-[560px] rounded-[4px] border border-line bg-card px-4 py-3 text-sm">
+            <strong className="font-semibold">Similar items.</strong>{" "}
+            <span className="text-mute">
+              Each shop sells its own version, not the identical product. Check the details on the shop’s site before you buy.
+            </span>
+          </p>
+        )}
 
         <h2 className="sec-title !mt-6 !text-2xl">Compare prices</h2>
         <table className="w-full border-collapse text-left">
@@ -176,7 +186,7 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
                 </td>
                 <td className={`border-b border-line px-2 py-3 ${priceDiffers && o.priceZar === cheapest ? "font-semibold text-warm" : ""}`}>
                   {formatRand(o.priceZar)}
-                  {priceDiffers && o.priceZar === cheapest && <span className="block text-xs">lowest</span>}
+                  {priceDiffers && o.priceZar === cheapest && <span className="block text-xs">{similar ? "cheapest" : "lowest"}</span>}
                 </td>
                 <td className="border-b border-line py-3 pl-2 text-right">
                   {o.url ? (

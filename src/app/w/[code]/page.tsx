@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { GuestGiftButton } from "@/components/RegistryForms";
 import { ShareButtons } from "@/components/ShareButtons";
 import { getProducts } from "@/lib/catalogue";
-import { formatRand } from "@/lib/format";
+import { formatRand, priceNote } from "@/lib/format";
 import { isOwnPhoto } from "@/lib/photos";
 import { formatEventDate, getRegistryByCode, OCCASIONS, type RegistryGift } from "@/lib/registry";
 import { getSavedIds, getSharedWishlist } from "@/lib/wishlist";
@@ -152,9 +152,7 @@ function GiftCard({ code, gift }: { code: string; gift: RegistryGift }) {
           {high > best.priceZar && <span className="font-semibold text-mute"> – {formatRand(high)}</span>}
         </span>
         <span className="text-xs text-mute">
-          {gift.offers.length > 1 && high === best.priceZar
-            ? "Same price at every shop"
-            : `${gift.offers.length > 1 ? "Lowest at" : "At"} ${best.shop}`}
+          {priceNote(gift.offers, gift.similarItems)}
           {" · checked "}
           {best.checkedOn}
         </span>

@@ -22,12 +22,13 @@ type ProductRow = {
   image: string | null;
   description: string | null;
   listed: boolean;
+  similar_items: boolean;
   added_by: string | null;
   offers: OfferRow[];
 };
 
 const SELECT =
-  "id, name, category, image, description, listed, added_by, offers (id, shop_name, price_zar, url, price_checked_at, added_by)";
+  "id, name, category, image, description, listed, similar_items, added_by, offers (id, shop_name, price_zar, url, price_checked_at, added_by)";
 
 // Discover is public, so it's read without the visitor's sign-in cookie.
 function publicClient() {
@@ -42,6 +43,7 @@ function toProduct(row: ProductRow): Product {
     image: row.image,
     description: row.description,
     listed: row.listed,
+    similarItems: row.similar_items,
     addedBy: row.added_by,
     href: `/product/${row.id}`,
     offers: row.offers
