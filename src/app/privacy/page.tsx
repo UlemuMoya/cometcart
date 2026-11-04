@@ -56,6 +56,10 @@ export default function PrivacyPage() {
           and any photo you upload.
         </li>
         <li>
+          <strong>Price-drop notifications, if you allow them:</strong> the address your browser gives us for sending
+          notifications to that device. Turn them off at any time on your Wishlist page.
+        </li>
+        <li>
           <strong>“Visit shop” clicks:</strong> which product and shop you clicked through to, and when. If you’re
           signed in, the click is linked to your account.
         </li>
@@ -130,6 +134,10 @@ export default function PrivacyPage() {
         <li>
           <strong>Vercel</strong> hosts the website. Like most websites, its servers briefly log technical details
           such as your IP address to deliver pages and stop abuse.
+        </li>
+        <li>
+          <strong>Your browser’s notification service</strong> (Google, Apple, Mozilla or Microsoft, depending on your
+          device) delivers price-drop notifications, if you allow them. They see the notification, not your account.
         </li>
       </ul>
       <p className={p}>

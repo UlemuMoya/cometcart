@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
 import { PageIntro } from "@/components/PageIntro";
+import { PriceAlertsSwitch } from "@/components/PriceAlertsSwitch";
 import { ProductCard } from "@/components/ProductCard";
 import { ShareButtons } from "@/components/ShareButtons";
 import { DeleteWishlistButton, RenameForm } from "@/components/WishlistTools";
@@ -109,6 +110,8 @@ async function MyWishlist() {
 
       <h2 className="sec-title">Settings</h2>
       <div className="grid gap-6">
+        <PriceAlertsSwitch />
+
         <RenameForm wishlistId={list.id} name={list.name} />
 
         <form action={newShareLink} className="grid max-w-[560px] gap-2">
