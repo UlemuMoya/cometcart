@@ -88,6 +88,25 @@ function webUrl(raw: string): URL | null {
   }
 }
 
+// Ad and tracking codes added by Google Shopping, social ads and search pages, plus other
+// sites' Amazon commission tags. They're not needed to open the product.
+const TRACKING = /^(utm_|gad_|hv)|^(gclid|gclsrc|gbraid|wbraid|fbclid|msclkid|srsltid|sfdr_ptcid|sfdr_hash|clickref|tag|linkcode|mcid|ref_|otracker1?|fm|iid|ppt|ppn|ssid|qh|srno|spotlighttagid)$/i;
+
+/** The shop link without tracking codes, so it's tidy and ours to swap for a tracked link later. */
+export function cleanShopUrl(raw: string): string {
+  try {
+    const url = new URL(raw);
+    for (const key of [...url.searchParams.keys()]) if (TRACKING.test(key)) url.searchParams.delete(key);
+    // Amazon's "/ref=asc_df_…" path ending is tracking too.
+    if (/amazon\./.test(url.hostname)) url.pathname = url.pathname.replace(/\/ref=[^/]*$/, "");
+    // Makro's product code is all its link needs; the rest is the search that found it.
+    if (/makro\./.test(url.hostname) && url.searchParams.has("pid")) url.search = `?pid=${url.searchParams.get("pid")}`;
+    return url.toString();
+  } catch {
+    return raw;
+  }
+}
+
 export type ShopLink =
   | { ok: true; url: string; /** true when the shop link was dug out of a Google/social link */ unwrapped: boolean }
   | { ok: false; problem: string };
@@ -111,7 +130,7 @@ export function resolveShopLink(raw: string): ShopLink | null {
   }
   if (NOT_A_SHOP.test(url.hostname))
     return { ok: false, problem: "That link doesn’t lead to a shop. Please copy the link from the shop’s product page." };
-  return { ok: true, url: url.toString(), unwrapped };
+  return { ok: true, url: cleanShopUrl(url.toString()), unwrapped };
 }
 
 export function guessFromLink(raw: string): LinkGuess | null {

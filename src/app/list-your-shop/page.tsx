@@ -4,7 +4,7 @@ import { ShopApplyForm } from "@/components/ShopForms";
 
 export const metadata: Metadata = {
   title: "List your shop",
-  description: "Show your products and prices to South African shoppers comparing prices on Cometcart.",
+  description: "Show your products and prices to shoppers comparing prices on Cometcart.",
   alternates: { canonical: "/list-your-shop" },
 };
 
@@ -15,7 +15,7 @@ export default function ListYourShopPage() {
     <section>
       <PageIntro
         title="List your shop"
-        intro="Show your products and prices to South African shoppers who are ready to buy."
+        intro="Show your products and prices to shoppers who are ready to buy."
       />
 
       <h2 className="sec-title !mt-2 !text-2xl">How it works</h2>

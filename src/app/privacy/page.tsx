@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <p className="mb-6 text-sm text-mute">Last updated {UPDATED}</p>
 
       <p className={p}>
-        Cometcart helps you find products, compare prices at South African shops and keep wishlists. This page
+        Cometcart helps you find products, compare prices at different shops and keep wishlists. This page
         explains, in plain language, what personal information we keep, why, who helps us store it, and your
         rights under South Africa’s Protection of Personal Information Act (POPIA).
       </p>

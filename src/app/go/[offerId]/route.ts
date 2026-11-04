@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { cleanShopUrl } from "@/lib/link-guess";
 import { createClient } from "@/lib/supabase/server";
 
 // Every "Visit shop" button goes through here: count the click, then send the
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/go/[offerId]
 
   let target: URL | null = null;
   try {
-    target = offer ? new URL(offer.url) : null;
+    target = offer ? new URL(cleanShopUrl(offer.url)) : null;
   } catch {}
   if (!offer || !target || !["https:", "http:"].includes(target.protocol)) {
     return NextResponse.redirect(new URL("/discover", request.url));

@@ -1,5 +1,6 @@
 import "server-only";
 import { formatCheckedDate } from "@/lib/format";
+import { cleanShopUrl } from "@/lib/link-guess";
 import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import type { Category, Product } from "@/lib/types";
@@ -155,7 +156,7 @@ export async function getRegistryByCode(code: string): Promise<SharedRegistry | 
           priceZar: Number(o.price),
           checkedOn: formatCheckedDate(o.checked_at),
           checkedAt: o.checked_at,
-          url: o.url ?? undefined,
+          url: o.url ? cleanShopUrl(o.url) : undefined,
         })),
       })),
   };

@@ -15,10 +15,10 @@ export async function generateMetadata(props: PageProps<"/discover">): Promise<M
   const params = await props.searchParams;
   const cat = typeof params.cat === "string" && (CATEGORIES as readonly string[]).includes(params.cat) ? params.cat : null;
   const filtered = ["q", "min", "max"].some((k) => typeof params[k] === "string" && params[k] !== "");
-  const title = cat ? `${cat}: compare prices in South Africa` : "Discover";
+  const title = cat ? `${cat}: compare prices` : "Discover";
   const description = cat
-    ? `Compare ${cat.toLowerCase()} prices at South African shops side by side, cheapest first, each with the date it was checked.`
-    : "Search in your own words and compare prices for the same product at different South African shops.";
+    ? `Compare ${cat.toLowerCase()} prices at different shops side by side, cheapest first, each with the date it was checked.`
+    : "Search in your own words and compare prices for the same product at different shops.";
   return {
     title,
     description,

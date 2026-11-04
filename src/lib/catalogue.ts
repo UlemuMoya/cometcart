@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { supabaseConfigured, supabaseKey, supabaseUrl } from "@/lib/supabase/config";
 import { createClient as createSignedInClient, getCurrentUser } from "@/lib/supabase/server";
 import { formatCheckedDate } from "@/lib/format";
+import { cleanShopUrl } from "@/lib/link-guess";
 import type { Category, Product } from "@/lib/types";
 
 type OfferRow = {
@@ -50,7 +51,7 @@ function toProduct(row: ProductRow): Product {
         priceZar: Number(o.price_zar),
         checkedOn: formatCheckedDate(o.price_checked_at),
         checkedAt: o.price_checked_at,
-        url: o.url ?? undefined,
+        url: o.url ? cleanShopUrl(o.url) : undefined,
         addedBy: o.added_by,
       }))
       .sort((a, b) => a.priceZar - b.priceZar),

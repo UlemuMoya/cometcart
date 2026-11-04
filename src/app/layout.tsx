@@ -25,7 +25,7 @@ const allura = Allura({
 });
 
 const DESCRIPTION =
-  "Compare prices at South African shops, see the cheapest at a glance, and save what you love to a wishlist you can share.";
+  "Compare prices at different shops, see the cheapest at a glance, and save what you love to a wishlist you can share.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cometcart.co.za"),
