@@ -28,3 +28,8 @@ export const INSPIRATION: { category: Category; image: string; alt: string; focu
     focus: "75% 40%",
   },
 ];
+
+/** The 8 shown on the home page: two strong photos from each group (Fashion, Home, Beauty, Tech),
+ *  so Inspiration reads as a mood board rather than a second list of every category. */
+const HOME_PICKS: Category[] = ["Bags", "Furniture", "Makeup", "Headphones", "Pants", "Lighting", "Fragrance", "Watches"];
+export const HOME_INSPIRATION = HOME_PICKS.map((c) => INSPIRATION.find((t) => t.category === c)!);

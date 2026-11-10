@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { SearchBar } from "@/components/SearchBar";
-import { INSPIRATION } from "@/data/inspiration";
+import { HOME_INSPIRATION } from "@/data/inspiration";
 import { getCatalogue, getMyFinds, getProducts, getTrending } from "@/lib/catalogue";
 import type { Product } from "@/lib/types";
 import { getMyRegistries } from "@/lib/registry";
@@ -53,7 +53,7 @@ export default function Home(props: PageProps<"/">) {
 
       <h2 className="sec-title">Inspiration</h2>
       <ul className="grid grid-cols-2 gap-2.5 min-[561px]:grid-cols-4">
-        {INSPIRATION.map((tile) => (
+        {HOME_INSPIRATION.map((tile) => (
           <li key={tile.category}>
             <Link
               href={`/discover?cat=${encodeURIComponent(tile.category)}`}
