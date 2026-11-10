@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { BlackFridayNote } from "@/components/BlackFridayNote";
 import { CategoryFlipTiles } from "@/components/CategoryFlipTiles";
 import { CategoryTile } from "@/components/CategoryIcon";
 import { isOwnPhoto } from "@/lib/photos";
@@ -7,6 +6,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { SearchBar } from "@/components/SearchBar";
+import { INSPIRATION } from "@/data/inspiration";
 import { getCatalogue, getMyFinds, getProducts, getTrending } from "@/lib/catalogue";
 import type { Product } from "@/lib/types";
 import { getMyRegistries } from "@/lib/registry";
@@ -21,25 +21,68 @@ export default function Home(props: PageProps<"/">) {
       <Suspense>
         <AccountDeleted searchParams={props.searchParams} />
       </Suspense>
-      <section className="mast-sky mb-3.5 mt-[22px] rounded-[6px] px-6 py-[30px]">
-        <h1 className="mb-2.5 mt-1.5 font-display text-[clamp(38px,7vw,64px)] font-medium leading-none">
+      <section className="mast mb-3.5 mt-[22px] rounded-[6px] px-6 py-[30px]">
+        <h1 className="mb-2 mt-1.5 font-display text-[clamp(38px,7vw,64px)] font-medium leading-none">
           Find anything. Compare every price. Save what you love.
         </h1>
-        <p className="max-w-[640px] text-[#dcd6ff]">
-          Search any product in your own words, compare prices from different shops side by side, and keep a wishlist
-          you can share.
+        <p className="text-[#dcd6ff]">
+          Search any product in your own words, compare prices from different shops side by side,
+          and keep a wishlist you can share.
         </p>
       </section>
 
-      <SearchBar placeholder="Search anything" />
+      <SearchBar />
 
-      <SectionHead title="Shop by category" />
-      <CategoryFlipTiles />
+      <h2 className="sec-title">What you can do</h2>
+      <ul className="grid gap-2.5 min-[561px]:grid-cols-2 md:grid-cols-4">
+        {FEATURES.map((f) => (
+          <li key={f.title} className="rounded-[4px] border border-line bg-card px-4 py-3.5">
+            <h3 className="mb-1 font-semibold">
+              {f.href ? (
+                <Link href={f.href} className="hover:underline">
+                  {f.title}
+                </Link>
+              ) : (
+                f.title
+              )}
+            </h3>
+            <p className="text-[15px] text-mute">{f.text}</p>
+          </li>
+        ))}
+      </ul>
+
+      <h2 className="sec-title">Inspiration</h2>
+      <ul className="grid grid-cols-2 gap-2.5 min-[561px]:grid-cols-4">
+        {INSPIRATION.map((tile) => (
+          <li key={tile.category}>
+            <Link
+              href={`/discover?cat=${encodeURIComponent(tile.category)}`}
+              className="relative flex aspect-[3/2] items-end overflow-hidden rounded-[4px] p-3 text-white"
+            >
+              <Image
+                src={tile.image}
+                alt={tile.alt}
+                fill
+                sizes="(max-width: 560px) 50vw, 240px"
+                className="object-cover"
+                style={{ objectPosition: tile.focus ?? "50% 50%" }}
+              />
+              <span
+                aria-hidden="true"
+                className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,11,36,.8),rgba(5,11,36,0)_60%)]"
+              />
+              <span className="relative font-display text-2xl font-semibold [text-shadow:0_1px_6px_rgba(0,0,0,.35)]">
+                {tile.category}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
 
       <Suspense
         fallback={
           <>
-            <SectionHead title="Trending finds" />
+            <h2 className="sec-title">Trending and new</h2>
             <p className="text-mute">Loading…</p>
           </>
         }
@@ -47,7 +90,11 @@ export default function Home(props: PageProps<"/">) {
         <Finds />
       </Suspense>
 
-      <h2 className="sec-title !mt-12">Your collections</h2>
+      <h2 className="sec-title">Shop by budget</h2>
+      <p className="mb-3 text-[15px] text-mute">Tap a category to pick a price range.</p>
+      <CategoryFlipTiles />
+
+      <h2 className="sec-title">Your collections</h2>
       <Suspense fallback={<p className="text-mute">Loading…</p>}>
         <Collections />
       </Suspense>
@@ -55,17 +102,29 @@ export default function Home(props: PageProps<"/">) {
   );
 }
 
-/** A section heading with a "See all" link on the right, as in the phone design. */
-function SectionHead({ title, href = "/discover" }: { title: string; href?: string }) {
-  return (
-    <div className="mt-12 flex items-end justify-between gap-4">
-      <h2 className="sec-title !mb-3.5 !mt-0 flex-1">{title}</h2>
-      <Link href={href} className="mb-3.5 py-2.5 text-sm text-warm hover:underline">
-        See all<span className="sr-only"> {title.toLowerCase()}</span>
-      </Link>
-    </div>
-  );
-}
+// What Cometcart does, for first-time visitors.
+const FEATURES: { title: string; text: string; href?: string }[] = [
+  {
+    title: "Search in plain words",
+    text: "Type a product, a category or a budget, like “air fryer”, “shoes” or “headphones under R1000”.",
+    href: "/discover",
+  },
+  {
+    title: "Compare prices",
+    text: "See the same product at different shops, cheapest first, each with the date the price was checked.",
+    href: "/discover",
+  },
+  {
+    title: "Save, share and gift",
+    text: "Save to your wishlist, or create a gift registry for a wedding, baby or birthday (free account). Share it on WhatsApp or with a link.",
+    href: "/wishlist",
+  },
+  {
+    title: "Paste a link from any shop",
+    text: "Seen something in another shop? Paste its link to save it to your wishlist. If we have it, you’ll see how the price compares.",
+    href: "/add",
+  },
+];
 
 async function AccountDeleted({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
   const { account } = await searchParams;
@@ -89,24 +148,26 @@ async function Finds() {
   if (!trending.length && !fresh.length) return null;
   const saved = new Set(wishlist?.productIds ?? []);
   const card = (p: (typeof catalogue)[number], badge?: string) => (
-    <ProductCard key={p.id} product={p} badge={badge} saved={wishlist === undefined ? false : saved.has(p.id)} />
+    <div key={p.id} className="w-[230px] flex-none">
+      <ProductCard product={p} badge={badge} saved={wishlist === undefined ? false : saved.has(p.id)} />
+    </div>
   );
 
   return (
     <>
-      <SectionHead title={trending.length ? "Trending finds" : "New in Discover"} />
-      <section className="rounded-[6px] border border-[rgba(140,170,255,.14)] bg-[#0a1440] px-3.5 pb-4 pt-3.5 md:px-4">
-        <p className="mb-3.5 text-sm text-mute">
-          {trending.length
-            ? "Most saved and visited in the last 30 days, and new in Discover"
-            : "The latest products added to Discover"}
-          <BlackFridayNote />
-        </p>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {trending.map((p) => card(p, "Trending"))}
-          {fresh.map((p) => card(p, trending.length ? "New" : undefined))}
-        </div>
-      </section>
+      <h2 className="sec-title">{trending.length ? "Trending and new" : "New in Discover"}</h2>
+      <div className="flex gap-3.5 overflow-x-auto pb-2 [scrollbar-width:thin]">
+        {trending.map((p) => card(p, "Trending"))}
+        {fresh.map((p) => card(p, trending.length ? "New" : undefined))}
+      </div>
+      <p className="mt-1.5 text-[13px] text-mute">
+        {trending.length
+          ? "Trending: most saved and visited in the last 30 days. New: just added to Discover."
+          : "The latest products added to Discover."}{" "}
+        <Link href="/discover" className="text-acc underline">
+          See everything
+        </Link>
+      </p>
     </>
   );
 }
