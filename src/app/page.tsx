@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { SearchBar } from "@/components/SearchBar";
-import { HOME_INSPIRATION } from "@/data/inspiration";
+import { HOME_INSPIRATION, INSPIRATION } from "@/data/inspiration";
 import { getCatalogue, getMyFinds, getProducts, getTrending } from "@/lib/catalogue";
 import type { Product } from "@/lib/types";
 import { getMyRegistries } from "@/lib/registry";
@@ -51,33 +51,9 @@ export default function Home(props: PageProps<"/">) {
         ))}
       </ul>
 
-      <h2 className="sec-title">Inspiration</h2>
-      <ul className="grid grid-cols-2 gap-2.5 min-[561px]:grid-cols-4">
-        {HOME_INSPIRATION.map((tile) => (
-          <li key={tile.category}>
-            <Link
-              href={`/discover?cat=${encodeURIComponent(tile.category)}`}
-              className="relative flex aspect-[3/2] items-end overflow-hidden rounded-[4px] p-3 text-white"
-            >
-              <Image
-                src={tile.image}
-                alt={tile.alt}
-                fill
-                sizes="(max-width: 560px) 50vw, 240px"
-                className="object-cover"
-                style={{ objectPosition: tile.focus ?? "50% 50%" }}
-              />
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,11,36,.8),rgba(5,11,36,0)_60%)]"
-              />
-              <span className="relative font-display text-2xl font-semibold [text-shadow:0_1px_6px_rgba(0,0,0,.35)]">
-                {tile.category}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <Suspense>
+        <Inspiration />
+      </Suspense>
 
       <Suspense
         fallback={
@@ -125,6 +101,50 @@ const FEATURES: { title: string; text: string; href?: string }[] = [
     href: "/add",
   },
 ];
+
+/**
+ * Inspiration tiles, only for categories that have products in Discover, so no tile
+ * leads to an empty page. The usual 8 picks come first, then any other category with products.
+ */
+async function Inspiration() {
+  const catalogue = await getCatalogue();
+  const stocked = new Set(catalogue.map((p) => p.category));
+  const picks = HOME_INSPIRATION.filter((t) => stocked.has(t.category));
+  const extra = INSPIRATION.filter((t) => stocked.has(t.category) && !picks.includes(t));
+  const tiles = [...picks, ...extra].slice(0, 8);
+  if (!tiles.length) return null;
+  return (
+    <>
+      <h2 className="sec-title">Inspiration</h2>
+      <ul className="grid grid-cols-2 gap-2.5 min-[561px]:grid-cols-4">
+        {tiles.map((tile) => (
+          <li key={tile.category}>
+            <Link
+              href={`/discover?cat=${encodeURIComponent(tile.category)}`}
+              className="relative flex aspect-[3/2] items-end overflow-hidden rounded-[4px] p-3 text-white"
+            >
+              <Image
+                src={tile.image}
+                alt={tile.alt}
+                fill
+                sizes="(max-width: 560px) 50vw, 240px"
+                className="object-cover"
+                style={{ objectPosition: tile.focus ?? "50% 50%" }}
+              />
+              <span
+                aria-hidden="true"
+                className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,11,36,.8),rgba(5,11,36,0)_60%)]"
+              />
+              <span className="relative font-display text-2xl font-semibold [text-shadow:0_1px_6px_rgba(0,0,0,.35)]">
+                {tile.category}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
 
 async function AccountDeleted({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
   const { account } = await searchParams;
