@@ -36,3 +36,9 @@ export function isStale(checkedAt: string | undefined): boolean {
   if (!checkedAt) return false;
   return Date.now() - new Date(checkedAt).getTime() > STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
 }
+
+/** "Takealot (choose your shade)" → name "Takealot", note "choose your shade", so the note can sit on its own line. */
+export function shopLabel(shop: string): { name: string; note?: string } {
+  const m = shop.match(/^(.*?)\s*\((.+)\)\s*$/);
+  return m ? { name: m[1], note: m[2] } : { name: shop };
+}

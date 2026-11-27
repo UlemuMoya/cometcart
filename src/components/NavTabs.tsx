@@ -17,7 +17,8 @@ export function Tabs({ current }: { current: string | null }) {
     // Also highlight the tab on its inner pages, e.g. Registries on /registry/123.
     const isCurrent = current === tab.href || (tab.href !== "/" && !!current?.startsWith(`${tab.href}/`));
     return (
-      <li key={tab.href}>
+      // On phones these tabs move to the bottom of the screen (BottomNav).
+      <li key={tab.href} className="hidden md:block">
         <Link
           href={tab.href}
           aria-current={isCurrent ? "page" : undefined}

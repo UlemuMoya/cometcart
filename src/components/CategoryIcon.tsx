@@ -73,3 +73,23 @@ export function CategoryTile({ category, size = "large" }: { category: Category;
     </span>
   );
 }
+
+const WASH: Record<string, string> = {
+  fashion: "linear-gradient(135deg,#1e3a8a,#3b82f6)",
+  home: "linear-gradient(135deg,#7a3b12,#d97706)",
+  makeup: "linear-gradient(135deg,#6b2470,#c04fc2)",
+  skin: "linear-gradient(135deg,#0a4f63,#1aa7bd)",
+  scent: "linear-gradient(135deg,#2f2480,#7c4de0)",
+  tech: "linear-gradient(135deg,#0b5f4a,#16a679)",
+};
+const GROUP: Record<Category, keyof typeof WASH> = {
+  Tops: "fashion", Pants: "fashion", Shoes: "fashion", Bags: "fashion", Watches: "fashion",
+  Furniture: "home", Bedding: "home", Lighting: "home", Kitchen: "home", Appliances: "home",
+  Makeup: "makeup", Skincare: "skin", Fragrance: "scent",
+  Headphones: "tech", Laptops: "tech", TVs: "tech",
+};
+
+/** A colour per group of categories, so photo-less cards don't all look the same. */
+export function categoryWash(category: Category): string {
+  return WASH[GROUP[category] ?? "tech"];
+}

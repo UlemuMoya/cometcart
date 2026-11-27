@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { CategoryTile } from "@/components/CategoryIcon";
+import { CategoryTile, categoryWash } from "@/components/CategoryIcon";
+import { ShopBadge } from "@/components/ShopBadge";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,7 +12,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { RemoveFindButton } from "@/components/RemoveFindButton";
 import { SaveButton } from "@/components/SaveButton";
 import { ShareButtons } from "@/components/ShareButtons";
-import { formatRand, isStale } from "@/lib/format";
+import { formatRand, isStale, shopLabel } from "@/lib/format";
 import { otherShopLinks } from "@/lib/other-shops";
 import { setListed } from "@/lib/product-actions";
 import { getCurrentUser, isOwner } from "@/lib/supabase/server";
@@ -79,6 +80,8 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
   const priceDiffers = offers.at(-1)!.priceZar > cheapest;
   // Similar items at each shop, not the identical product: say so, and call it "cheapest", not "lowest".
   const similar = several && product.similarItems === true;
+  const saving = offers.at(-1)!.priceZar - cheapest;
+  const best = offers.find((o) => o.url) ?? null;
 
   // Product and price details in the format search engines read (schema.org), only for
   // Discover products, and only with the real prices, shops and dates shown on the page.
@@ -118,7 +121,7 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
         />
       )}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-[4px] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-[10px]" style={{ background: categoryWash(product.category) }}>
         {product.image ? (
           <Image
             src={product.image}
@@ -147,13 +150,27 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
         <h1 className="mb-2 mt-1 font-display text-[clamp(28px,5vw,40px)] font-medium leading-[1.1]">
           {product.name}
         </h1>
-        <p className="text-[19px] font-bold">
-          {formatRand(cheapest)}
-          {priceDiffers && <span className="font-semibold text-mute"> – {formatRand(offers.at(-1)!.priceZar)}</span>}
-          <span className="ml-2 text-sm font-normal text-mute">
-            {several && !priceDiffers ? `same price at all ${offers.length} shops` : `${offers.length} shop${several ? "s" : ""}`}
-          </span>
+        <p className="text-sm text-mute">
+          {several && !priceDiffers
+            ? `Same price at all ${offers.length} shops`
+            : `${offers.length} shop${several ? "s" : ""}`}
         </p>
+
+        {/* The answer first: where it's cheapest and how much shopping around saves. */}
+        <div className="mt-4 max-w-[560px] rounded-[10px] border border-[#2a4a9a] bg-[linear-gradient(120deg,rgba(11,127,104,.35),rgba(74,63,208,.35))] p-4">
+          <div className="text-[13px] font-semibold tracking-[.02em] text-[#c9f5ec]">
+            {similar ? "CHEAPEST" : several && priceDiffers ? "BEST PRICE" : "PRICE"}
+          </div>
+          <div className="mt-0.5 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-[34px] font-bold leading-tight">{formatRand(cheapest)}</span>
+            <span className="text-[#dcd6ff]">at {shopLabel(offers[0].shop).name}</span>
+          </div>
+          {priceDiffers && !similar && (
+            <div className="mt-1 text-sm font-semibold text-warm">
+              {formatRand(saving)} less than the most expensive shop
+            </div>
+          )}
+        </div>
         {similar && (
           <p className="mt-3 max-w-[560px] rounded-[4px] border border-line bg-card px-4 py-3 text-sm">
             <strong className="font-semibold">Similar items.</strong>{" "}
@@ -163,50 +180,52 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           </p>
         )}
 
-        <h2 className="sec-title !mt-6 !text-2xl">Compare prices</h2>
-        <table className="w-full border-collapse text-left">
-          <thead>
-            <tr className="text-sm text-mute">
-              <th scope="col" className="border-b border-line py-2 pr-2 font-normal">Shop</th>
-              <th scope="col" className="border-b border-line px-2 py-2 font-normal">Price</th>
-              <th scope="col" className="border-b border-line py-2 pl-2 font-normal">
-                <span className="sr-only">Link</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {offers.map((o) => (
-              <tr key={o.id ?? o.shop}>
-                <td className="border-b border-line py-3 pr-2">
-                  {o.shop}
-                  <div className="text-xs text-mute">
+        <h2 className="sec-title !mt-6 !text-2xl">Compare shops</h2>
+        <ul className="overflow-hidden rounded-[10px] border border-line bg-card">
+          {offers.map((o, i) => {
+            const label = shopLabel(o.shop);
+            const stale = isStale(o.checkedAt);
+            const isLow = priceDiffers && o.priceZar === cheapest;
+            return (
+              <li key={o.id ?? o.shop} className={`flex flex-wrap items-center gap-3 p-3.5 ${i ? "border-t border-line" : ""}`}>
+                <ShopBadge name={label.name} />
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold">{label.name}</div>
+                  {label.note && <div className="text-xs text-mute">{label.note}</div>}
+                  <div className="flex items-center gap-1.5 text-xs text-mute">
+                    <span
+                      aria-hidden="true"
+                      className={`inline-block h-2 w-2 rounded-full ${stale ? "bg-[#fbbf24]" : "bg-[#34d399]"}`}
+                    />
                     checked {o.checkedOn}
-                    {isStale(o.checkedAt) && <span className="text-[#fcd34d]"> · may have changed</span>}
+                    {stale && <span className="text-[#fcd34d]"> · may have changed</span>}
                   </div>
-                </td>
-                <td className={`border-b border-line px-2 py-3 ${priceDiffers && o.priceZar === cheapest ? "font-semibold text-warm" : ""}`}>
-                  {formatRand(o.priceZar)}
-                  {priceDiffers && o.priceZar === cheapest && <span className="block text-xs">{similar ? "cheapest" : "lowest"}</span>}
-                </td>
-                <td className="border-b border-line py-3 pl-2 text-right">
-                  {o.url ? (
-                    <a
-                      href={`/go/${o.id}`}
-                      target="_blank"
-                      rel="noopener nofollow"
-                      className="inline-block rounded-[3px] border border-line px-3 py-2 text-sm hover:border-mute"
-                    >
-                      Visit shop<span className="sr-only"> {o.shop} (opens in a new tab)</span>
-                    </a>
-                  ) : (
-                    // Added from a photo taken in a shop: no website link.
-                    <span className="text-sm text-mute">In store</span>
+                </div>
+                <div className="text-right">
+                  <div className={`text-lg font-bold ${isLow ? "text-warm" : ""}`}>{formatRand(o.priceZar)}</div>
+                  {priceDiffers && (
+                    <div className="text-xs font-semibold text-mute">
+                      {isLow ? <span className="text-warm">{similar ? "cheapest" : "lowest"}</span> : `+${formatRand(o.priceZar - cheapest)}`}
+                    </div>
                   )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+                {o.url ? (
+                  <a
+                    href={`/go/${o.id}`}
+                    target="_blank"
+                    rel="noopener nofollow"
+                    className="inline-flex min-h-[44px] items-center rounded-[6px] border border-line px-3 text-sm hover:border-mute"
+                  >
+                    Visit<span className="sr-only"> {label.name} (opens in a new tab)</span>
+                  </a>
+                ) : (
+                  // Added from a photo taken in a shop: no website link.
+                  <span className="text-sm text-mute">In store</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
         <p className="mt-2 text-xs text-mute">
           Prices can change. Always check the price on the shop’s site before you buy.
         </p>
@@ -216,57 +235,58 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
             <SaveButton
               productId={product.id}
               saved={saved}
-              className="btn-grad rounded-[3px] px-[18px] py-3 font-semibold disabled:opacity-60"
+              className="btn-grad rounded-[6px] px-[18px] py-3 font-semibold disabled:opacity-60"
             />
           ) : (
             <RemoveFindButton
               productId={product.id}
               thenGoToWishlist
-              className="rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute"
+              className="rounded-[6px] border border-line px-[18px] py-3 font-semibold hover:border-mute"
             />
           )}
-          <Link
-            href={`/add?product=${product.id}`}
-            className="rounded-[3px] border border-line px-[18px] py-3 font-semibold hover:border-mute"
-          >
+        </div>
+
+        {/* Sharing and gifting tucked into one menu, so the page leads with the prices. */}
+        {(product.listed || user) && (
+          <details className="mt-4 max-w-[560px] rounded-[6px] border border-line bg-card">
+            <summary className="flex min-h-[44px] cursor-pointer items-center px-4 font-semibold">Share or gift</summary>
+            <div className="grid gap-3 border-t border-line p-4">
+              {product.listed && (
+                <ShareButtons
+                  url={`https://www.cometcart.co.za/product/${product.id}`}
+                  title={product.name}
+                  text={`${product.name}: ${formatRand(cheapest)}${
+                    priceDiffers ? ` – ${formatRand(offers.at(-1)!.priceZar)}` : ""
+                  }${several ? ` at ${offers.length} shops` : ` at ${offers[0].shop}`} on Cometcart.`}
+                />
+              )}
+              {user &&
+                (registries.length ? (
+                  <AddToRegistryForm productId={product.id} registries={registries.map((r) => ({ id: r.id, name: r.name }))} />
+                ) : (
+                  <p className="text-sm text-mute">
+                    🎁 Planning a wedding, baby shower or birthday?{" "}
+                    <Link href="/registry" className="text-acc underline">
+                      Create a gift registry
+                    </Link>
+                  </p>
+                ))}
+            </div>
+          </details>
+        )}
+
+        <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+          <Link href={`/add?product=${product.id}`} className="text-acc underline">
             + Add another shop’s price
           </Link>
-        </div>
-        {product.listed && (
-          <div className="mt-4">
-            <ShareButtons
-              url={`https://www.cometcart.co.za/product/${product.id}`}
-              title={product.name}
-              text={`${product.name}: ${formatRand(cheapest)}${
-                priceDiffers ? ` – ${formatRand(offers.at(-1)!.priceZar)}` : ""
-              }${several ? ` at ${offers.length} shops` : ` at ${offers[0].shop}`} on Cometcart.`}
-            />
-          </div>
-        )}
-        {canEdit && (
-          <p className="mt-3 text-sm">
+          {canEdit && (
             <Link href={`/product/${product.id}/edit`} className="text-acc underline">
               ✎ Edit name, category, photo or your prices
             </Link>
-          </p>
-        )}
+          )}
+        </p>
 
-        {user && (
-          <div className="mt-3">
-            {registries.length ? (
-              <AddToRegistryForm productId={product.id} registries={registries.map((r) => ({ id: r.id, name: r.name }))} />
-            ) : (
-              <p className="text-sm text-mute">
-                🎁 Planning a wedding, baby shower or birthday?{" "}
-                <Link href="/registry" className="text-acc underline">
-                  Create a gift registry
-                </Link>
-              </p>
-            )}
-          </div>
-        )}
-
-        {elsewhere.length > 0 && (
+        {user && elsewhere.length > 0 && (
           <>
             <h2 className="sec-title !mt-8 !text-2xl">Check other shops</h2>
             <p className="mb-3 text-sm text-mute">
@@ -323,6 +343,27 @@ async function Product({ params }: Pick<PageProps<"/product/[id]">, "params">) {
           No reviews yet. We only show real reviews, with where they came from.
         </p>
       </div>
+      {/* Phones: best price and the shop button stay within thumb reach, above the bottom tabs. */}
+      {best && (
+        <>
+          <div aria-hidden="true" className="h-20 md:hidden" />
+          <div className="fixed inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom))] z-20 flex items-center gap-3 border-t border-line bg-[rgba(8,16,52,.97)] px-4 py-3 md:hidden">
+            <div className="flex-none">
+              <div className="text-xs text-mute">{best.priceZar === cheapest ? (similar ? "Cheapest" : "Best price") : "Price"}</div>
+              <div className="text-xl font-bold">{formatRand(best.priceZar)}</div>
+            </div>
+            <a
+              href={`/go/${best.id}`}
+              target="_blank"
+              rel="noopener nofollow"
+              className="btn-grad flex min-h-[48px] flex-1 items-center justify-center rounded-[10px] font-bold"
+            >
+              Visit {shopLabel(best.shop).name}
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </div>
+        </>
+      )}
     </article>
   );
 }

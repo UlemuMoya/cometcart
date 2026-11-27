@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CategoryTile } from "@/components/CategoryIcon";
+import { CategoryTile, categoryWash } from "@/components/CategoryIcon";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { formatRand, isStale, lowestOffer, priceNote } from "@/lib/format";
@@ -29,7 +29,7 @@ export function ProductCard({ product, badge, saved }: Props) {
           {badge}
         </span>
       )}
-      <div className="relative aspect-[4/3] bg-[linear-gradient(135deg,#0b5f4a,#2f2480_60%,#6b2470)]">
+      <div className="relative aspect-[4/3]" style={{ background: categoryWash(product.category) }}>
         {product.image ? (
           <Image
             src={product.image}

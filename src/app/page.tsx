@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { CategoryFlipTiles } from "@/components/CategoryFlipTiles";
-import { CategoryTile } from "@/components/CategoryIcon";
+import { CategoryTile, categoryWash } from "@/components/CategoryIcon";
+import { formatRand, shopLabel } from "@/lib/format";
 import { isOwnPhoto } from "@/lib/photos";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -33,23 +34,16 @@ export default function Home(props: PageProps<"/">) {
 
       <SearchBar />
 
-      <h2 className="sec-title">What you can do</h2>
-      <ul className="grid gap-2.5 min-[561px]:grid-cols-2 md:grid-cols-4">
-        {FEATURES.map((f) => (
-          <li key={f.title} className="rounded-[4px] border border-line bg-card px-4 py-3.5">
-            <h3 className="mb-1 font-semibold">
-              {f.href ? (
-                <Link href={f.href} className="hover:underline">
-                  {f.title}
-                </Link>
-              ) : (
-                f.title
-              )}
-            </h3>
-            <p className="text-[15px] text-mute">{f.text}</p>
-          </li>
-        ))}
-      </ul>
+      <Suspense
+        fallback={
+          <>
+            <h2 className="sec-title">Biggest savings today</h2>
+            <div className="h-[230px] animate-pulse rounded-[10px] bg-card motion-reduce:animate-none" />
+          </>
+        }
+      >
+        <Savings />
+      </Suspense>
 
       <Suspense>
         <Inspiration />
@@ -78,29 +72,52 @@ export default function Home(props: PageProps<"/">) {
   );
 }
 
-// What Cometcart does, for first-time visitors.
-const FEATURES: { title: string; text: string; href?: string }[] = [
-  {
-    title: "Search in plain words",
-    text: "Type a product, a category or a budget, like “air fryer”, “shoes” or “headphones under R1000”.",
-    href: "/discover",
-  },
-  {
-    title: "Compare prices",
-    text: "See the same product at different shops, cheapest first, each with the date the price was checked.",
-    href: "/discover",
-  },
-  {
-    title: "Save, share and gift",
-    text: "Save to your wishlist, or create a gift registry for a wedding, baby or birthday (free account). Share it on WhatsApp or with a link.",
-    href: "/wishlist",
-  },
-  {
-    title: "Paste a link from any shop",
-    text: "Seen something in another shop? Paste its link to save it to your wishlist. If we have it, you’ll see how the price compares.",
-    href: "/add",
-  },
-];
+/**
+ * Products where shopping around saves the most: the gap between the dearest and cheapest shop.
+ * Only identical products (not "similar items"), so the saving is real.
+ */
+async function Savings() {
+  const catalogue = await getCatalogue();
+  const deals = catalogue
+    .filter((p) => p.offers.length > 1 && !p.similarItems)
+    .map((p) => ({ p, best: p.offers[0], save: p.offers.at(-1)!.priceZar - p.offers[0].priceZar }))
+    .filter((d) => d.save >= 20)
+    .sort((x, y) => y.save - x.save)
+    .slice(0, 8);
+  if (!deals.length) return null;
+  return (
+    <>
+      <h2 className="sec-title">Biggest savings today</h2>
+      <p className="-mt-2 mb-3 text-sm text-mute">Where comparing shops saves you the most.</p>
+      <ul className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:thin]">
+        {deals.map(({ p, best, save }) => (
+          <li key={p.id} className="w-[180px] flex-none">
+            <Link
+              href={p.href ?? "/discover"}
+              className="lift flex h-full flex-col overflow-hidden rounded-[10px] border border-line bg-card"
+            >
+              <span className="relative block h-[104px]" style={{ background: categoryWash(p.category) }}>
+                {p.image ? (
+                  <Image src={p.image} unoptimized={!isOwnPhoto(p.image)} alt="" fill sizes="180px" className="object-cover" />
+                ) : (
+                  <CategoryTile category={p.category} />
+                )}
+                <span className="absolute left-2 top-2 rounded-full bg-warm px-2 py-[3px] text-xs font-bold text-[#04211b]">
+                  Save {formatRand(save)}
+                </span>
+              </span>
+              <span className="flex flex-1 flex-col px-3 pb-3 pt-2.5">
+                <span className="line-clamp-2 min-h-[2.6em] text-sm font-medium">{p.name}</span>
+                <span className="mt-1 text-lg font-bold">{formatRand(best.priceZar)}</span>
+                <span className="text-xs text-mute">at {shopLabel(best.shop).name} · checked {best.checkedOn}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
 
 /**
  * Inspiration tiles, only for categories that have products in Discover, so no tile

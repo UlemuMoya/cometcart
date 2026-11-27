@@ -1,3 +1,4 @@
+import { BottomNav } from "@/components/BottomNav";
 import type { Metadata, Viewport } from "next";
 import { Allura, Cormorant_Garamond, DM_Sans } from "next/font/google";
 import Link from "next/link";
@@ -58,7 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en-ZA" className={`${dmSans.variable} ${cormorant.variable} ${allura.variable}`}>
       {/* Some browser extensions (e.g. TotalAV) add a class to <body> before the page loads. */}
       <body suppressHydrationWarning>
-        <main className="mx-auto max-w-[980px] px-4 pb-24 pt-5">
+        <main className="mx-auto max-w-[980px] px-4 pb-28 pt-5 md:pb-24">
           <SiteHeader
             account={
               <Suspense fallback={<AccountLinkFallback />}>
@@ -91,6 +92,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </a>
           </p>
         </main>
+        <BottomNav />
       </body>
     </html>
   );
