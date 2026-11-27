@@ -30,8 +30,8 @@ const TABS = [
   { href: "/add", label: "Add link", icon: <path d="M5 12h14M12 5v14" /> },
 ];
 
-export function BottomNav() {
-  const current = usePathname();
+/** `current` is the highlighted tab, or null while the page address isn't known yet. */
+export function BottomTabs({ current }: { current: string | null }) {
   return (
     <nav
       aria-label="Main (phone)"
@@ -60,4 +60,8 @@ export function BottomNav() {
       </ul>
     </nav>
   );
+}
+
+export function BottomNav() {
+  return <BottomTabs current={usePathname()} />;
 }

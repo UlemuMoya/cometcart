@@ -1,4 +1,4 @@
-import { BottomNav } from "@/components/BottomNav";
+import { BottomNav, BottomTabs } from "@/components/BottomNav";
 import type { Metadata, Viewport } from "next";
 import { Allura, Cormorant_Garamond, DM_Sans } from "next/font/google";
 import Link from "next/link";
@@ -92,7 +92,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </a>
           </p>
         </main>
-        <BottomNav />
+        {/* The highlighted tab depends on the page address, known only per visit. */}
+        <Suspense fallback={<BottomTabs current={null} />}>
+          <BottomNav />
+        </Suspense>
       </body>
     </html>
   );
